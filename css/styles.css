@@ -611,6 +611,53 @@ html.viewing #header{opacity:.25;transition:opacity .35s}
   box-shadow:0 0 18px rgba(168,85,247,.32)}
 .socials svg{width:19px;height:19px;fill:currentColor;display:block}
 
+/* ============ FAQ ============ */
+/* Contact is no longer last, so it keeps its tight bottom and the FAQ carries
+   the page's closing space. The pair reads as one block rather than two
+   sections 240px apart. */
+.faq{padding-top:76px;padding-bottom:clamp(96px,13vh,136px)}
+/* interpolate-size is scoped here, not to :root, so letting block-size
+   animate to auto cannot affect anything else on the page. */
+.faq-list{max-width:820px;margin:0 auto;display:flex;flex-direction:column;gap:14px;
+  interpolate-size:allow-keywords}
+
+/* Native <details>: keyboard operable, works with JS off, and name="faq"
+   gives an exclusive accordion without a line of script. */
+.faq-q{border:1px solid var(--line);border-radius:16px;background:var(--surface);
+  overflow:hidden;transition:border-color .35s,background .35s}
+.faq-q:hover{border-color:var(--line-strong);background:var(--surface-2)}
+.faq-q[open]{border-color:var(--line-strong)}
+.faq-q summary{display:flex;align-items:center;gap:20px;cursor:pointer;list-style:none;
+  padding:24px 26px;font-family:'Sora',system-ui,sans-serif;
+  font-size:17.5px;font-weight:600;letter-spacing:-.01em}
+.faq-q summary::-webkit-details-marker{display:none}   /* Safari's triangle */
+.faq-q summary::marker{content:""}
+.faq-q summary:focus-visible{outline:2px solid var(--violet-bright);outline-offset:-3px;border-radius:15px}
+
+/* A plus built from two bars: the vertical one rotates flat, so the sign
+   turns into a minus rather than swapping glyphs. */
+.faq-q summary i{position:relative;flex:none;width:16px;height:16px;margin-left:auto}
+.faq-q summary i::before,.faq-q summary i::after{content:"";position:absolute;
+  top:50%;left:0;right:0;height:1.5px;border-radius:2px;background:var(--violet-bright);
+  transform:translateY(-50%)}
+.faq-q summary i::after{transform:translateY(-50%) rotate(90deg);
+  transition:transform .45s cubic-bezier(.16,1,.3,1)}
+.faq-q[open] summary i::after{transform:translateY(-50%) rotate(0deg)}
+
+.faq-a{padding:0 26px 26px;color:var(--muted);font-size:15px;line-height:1.7;max-width:64ch}
+
+/* Height animation on the open/close. Browsers without ::details-content
+   simply snap open, which is the correct fallback — the content is never
+   hidden by anything but the element's own open state. */
+.faq-q::details-content{block-size:0;overflow:hidden;
+  transition:block-size .5s cubic-bezier(.16,1,.3,1),content-visibility .5s allow-discrete}
+.faq-q[open]::details-content{block-size:auto}
+
+.faq-foot{text-align:center;margin-top:40px;color:var(--muted);font-size:15px}
+.faq-foot a{color:var(--glow);border-bottom:1px solid var(--violet-bright);padding-bottom:1px;
+  transition:color .3s,border-color .3s}
+.faq-foot a:hover{color:var(--text);border-color:var(--violet-bright)}
+
 
 /* ============ THEME TOGGLE ============ */
 .theme-toggle{position:relative;width:52px;height:28px;border-radius:100px;border:1px solid var(--line-strong);background:var(--surface);cursor:pointer;transition:background .4s,border-color .4s;display:flex;align-items:center;padding:0;margin:0 8px}
@@ -692,6 +739,8 @@ html.light .play{box-shadow:0 10px 26px rgba(124,58,237,.3)}
 /* ---------- phones ---------- */
 @media(max-width:600px){
   .wrap{padding:0 20px}
+  .faq-q summary{padding:20px;gap:14px;font-size:16px}
+  .faq-a{padding:0 20px 22px;font-size:14.5px}
   .hero h1{font-size:clamp(36px,11.5vw,64px)}   /* 48px min overflowed a 320px screen */
   .hero-inner .eyebrow{margin-bottom:24px}
   .hero-sub{font-size:15.5px}
