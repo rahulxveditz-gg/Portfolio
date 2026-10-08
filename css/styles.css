@@ -235,21 +235,22 @@ header.scrolled{background:var(--header-bg-scrolled);border-bottom-color:var(--h
 /* 1fr auto 1fr keeps the menu centred on the page, not between the
    brand and button (which are different widths) */
 .nav{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;height:76px;gap:0}
-.nav>.brand-wrap{justify-self:start;min-width:0}
-/* brand + availability badge share the nav's left cell */
-.brand-wrap{display:flex;align-items:center;gap:12px;min-width:0}
-.avail{display:inline-flex;align-items:center;gap:7px;white-space:nowrap;
-  font-family:'Sora',system-ui,sans-serif;font-size:11px;font-weight:600;
-  letter-spacing:.07em;text-transform:uppercase;color:var(--muted);
-  padding:6px 12px 6px 10px;border-radius:999px;
-  border:1px solid var(--line-strong);background:var(--surface)}
-.avail i{width:6px;height:6px;border-radius:50%;background:#34d399;flex:none;
-  box-shadow:0 0 0 3px rgba(52,211,153,.16);
-  animation:availPulse 2.6s ease-in-out infinite}
+.nav>.brand{justify-self:start}
 @keyframes availPulse{0%,100%{opacity:1}50%{opacity:.4}}
 .nav>.menu{justify-self:center}
 .nav>.nav-right{justify-self:end;display:flex;align-items:center;gap:12px}
-.brand{font-family:'Sora';font-weight:800;font-size:22px;letter-spacing:-.02em}
+/* The brand sits in a rounded box with a live dot in front of it. The dot is
+   the whole availability signal — no label — so it carries an aria-label
+   rather than being a silent decoration. */
+.brand{display:inline-flex;align-items:center;gap:10px;
+  font-family:'Sora';font-weight:800;font-size:22px;letter-spacing:-.02em;
+  padding:8px 18px 8px 14px;border-radius:999px;
+  border:1px solid var(--line-strong);background:var(--surface);
+  transition:border-color .3s,box-shadow .3s}
+.brand:hover{border-color:var(--violet-bright);box-shadow:0 0 16px rgba(168,85,247,.22)}
+.brand .dot{width:7px;height:7px;border-radius:50%;background:#34d399;flex:none;
+  box-shadow:0 0 0 3px rgba(52,211,153,.16);
+  animation:availPulse 2.6s ease-in-out infinite}
 .brand span{color:var(--violet-bright)}
 .menu{display:flex;gap:38px;list-style:none}
 .menu a{font-size:14px;color:var(--muted);font-weight:500;position:relative;transition:color .3s}
@@ -679,7 +680,6 @@ html.light .play{box-shadow:0 10px 26px rgba(124,58,237,.3)}
 
 /* ---------- tablet & below ---------- */
 @media(max-width:900px){
-  .avail{display:none}      /* no room for it beside the burger */
   .menu,.nav-cta{display:none}
   .theme-toggle{margin-right:12px}
   .nav{display:flex;justify-content:space-between}   /* brand left, burger right */
