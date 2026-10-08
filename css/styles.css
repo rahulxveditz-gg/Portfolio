@@ -491,19 +491,39 @@ html.viewing #header{opacity:.25;transition:opacity .35s}
 
 /* ============ ABOUT ============ */
 .about{background:linear-gradient(180deg,transparent,rgba(20,13,38,.5))}
-.about-grid{display:grid;grid-template-columns:.85fr 1.15fr;gap:64px;align-items:center}
-.about-photo{aspect-ratio:4/5;border-radius:20px;position:relative;overflow:hidden;border:1px solid var(--line-strong)}
-/* source is square, frame is 4:5 — cover crops the sides and keeps full height.
-   object-position biased up so the face sits in the upper third, not dead centre */
+/* Centred single column rather than the old photo-left / text-right split:
+   one axis, generous spacing, everything stacked down the middle. */
+.about-col{display:flex;flex-direction:column;align-items:center;text-align:center}
+
+/* availability kicker */
+.pill{display:inline-flex;align-items:center;gap:9px;
+  font-family:'Sora',system-ui,sans-serif;font-size:12px;font-weight:600;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--text);
+  padding:9px 18px 9px 15px;border-radius:999px;
+  border:1px solid var(--line-strong);background:var(--surface);
+  margin-bottom:clamp(28px,4vh,44px)}
+.pill i{width:7px;height:7px;border-radius:50%;background:#34d399;flex:none;
+  box-shadow:0 0 0 3px rgba(52,211,153,.16);animation:pillPulse 2.6s ease-in-out infinite}
+@keyframes pillPulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* Circular portrait. The source is square and the face sits high, so the crop
+   is biased up — dead centre would cut the forehead. */
+.about-photo{width:clamp(130px,16vw,176px);aspect-ratio:1;border-radius:50%;
+  position:relative;overflow:hidden;border:1px solid var(--line-strong);
+  box-shadow:0 22px 54px -20px rgba(0,0,0,.72);margin-bottom:clamp(26px,3.5vh,38px)}
 .about-photo img{position:absolute;inset:0;width:100%;height:100%;
-  object-fit:cover;object-position:50% 32%;display:block}
-.about-photo::after{content:"";position:absolute;inset:0;pointer-events:none;
-  background:linear-gradient(to top,rgba(8,6,15,.72),rgba(8,6,15,.12) 42%,transparent 68%)}
-.about h2{font-size:clamp(30px,4.4vw,54px);margin-bottom:26px}
-.about .lead{font-size:18px;color:var(--text);margin-bottom:20px;line-height:1.6}
-.about p{color:var(--muted);font-size:15.5px;line-height:1.7;margin-bottom:18px}
-.tools{display:flex;flex-wrap:wrap;gap:12px;margin-top:30px}
-.tools span{font-size:13px;padding:9px 16px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--muted)}
+  object-fit:cover;object-position:50% 26%;display:block}
+
+.about h2{font-size:clamp(32px,5vw,58px);line-height:1.05;
+  margin-bottom:22px;max-width:16ch}
+.about .lead{font-size:18.5px;color:var(--text);line-height:1.6;
+  max-width:620px;margin-bottom:20px}
+.about p{color:var(--muted);font-size:15.5px;line-height:1.75;
+  max-width:620px;margin-bottom:16px}
+.tools{display:flex;flex-wrap:wrap;gap:11px;justify-content:center;
+  margin-top:clamp(26px,3.5vh,38px)}
+.tools span{font-size:13px;padding:9px 16px;border:1px solid var(--line);
+  border-radius:999px;background:var(--surface);color:var(--muted)}
 
 /* ============ TESTIMONIALS ============ */
 .quotes{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
@@ -618,13 +638,12 @@ html.light .play{box-shadow:0 10px 26px rgba(124,58,237,.3)}
   .theme-toggle{margin-right:12px}
   .nav{display:flex;justify-content:space-between}   /* brand left, burger right */
   .burger{display:flex}
-  .work-grid,.proc,.quotes,.about-grid,.contact-grid{grid-template-columns:1fr}
+  .work-grid,.proc,.quotes,.contact-grid{grid-template-columns:1fr}
   /* half the columns: long cards go 1-up, shorts 2-up */
   .works{grid-template-columns:repeat(2,1fr)}
   .serv-row{grid-template-columns:1fr;gap:14px;padding:34px 0}
   .serv-row .idx{font-size:15px}
   section{padding:80px 0}
-  .about-grid{gap:36px}
   /* the scroll hint sits absolutely at bottom:30px and is ~61px tall, so the
      centred hero content needs at least ~91px of bottom padding to clear it */
   .hero{padding-top:104px;padding-bottom:130px}
