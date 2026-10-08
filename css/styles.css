@@ -548,11 +548,24 @@ html.viewing #header{opacity:.25;transition:opacity .35s}
    scrollbar, and the heading clipped at the top. js/main.js grows this to
    whatever height Calendly reports for its content. The floor only covers
    the moment before the first report arrives. */
-.cal-embed{min-width:300px;min-height:clamp(900px,108vh,1180px);
-  border-radius:15px;overflow:hidden}
+.cal-embed{position:relative;min-width:300px;min-height:clamp(900px,108vh,1180px);
+  border-radius:15px;overflow:hidden;background:var(--bg-2)}
 /* Calendly sets these inline on the iframe it injects; this is only a fallback
    for if it ever does not. */
-.cal-embed iframe{display:block;width:100%;height:100%;border:0}
+.cal-embed iframe{display:block;width:100%;height:100%;border:0;
+  opacity:0;transition:opacity .45s ease}
+.cal-embed.live iframe{opacity:1}
+/* Our own placeholder sits over the frame until Calendly reports it has
+   rendered. Without it the first thing you see is Calendly's loading screen:
+   a full-height white rectangle with a dot in the middle. */
+.cal-embed::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:var(--bg-2);transition:opacity .45s ease;z-index:1}
+.cal-embed::before{content:"Loading booking calendar…";position:absolute;
+  left:0;right:0;top:50%;transform:translateY(-50%);pointer-events:none;
+  text-align:center;color:var(--muted);font-size:14px;letter-spacing:.04em;
+  transition:opacity .45s ease;z-index:2}
+.cal-embed.live::before,.cal-embed.live::after{opacity:0}
+.cal-embed.failed::before{content:"Calendar unavailable — email hello@rahulvisualzz.com"}
 .cal-embed:not(.ready){display:grid;place-items:center}
 /* placeholder until the widget replaces the contents of this element */
 .cal-embed:not(.ready)::before{content:"Loading calendar…";color:var(--muted);

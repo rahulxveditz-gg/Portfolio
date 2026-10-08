@@ -389,21 +389,37 @@ document.getElementById('burger').addEventListener('click',()=>goTo('#contact'))
     host.innerHTML='';
     window.Calendly.initInlineWidget({url:url(),parentElement:host});
     host.classList.add('ready');
+    /* Calendly's own loading screen is a full-height white rectangle, so the
+       frame stays hidden behind our placeholder until it says it has rendered.
+       The timeout is the backstop: if no message ever arrives, showing
+       Calendly's screen beats showing ours forever. */
+    clearTimeout(reveal); reveal=setTimeout(live,4000);
   }
+  let reveal=0;
+  function live(){ clearTimeout(reveal); host.classList.add('live'); }
+
   function load(){
     if(asked) return; asked=true;
     const s=document.createElement('script');
     s.src='https://assets.calendly.com/assets/external/widget.js';
     s.async=true;
     s.onload=mount;
-    s.onerror=()=>host.classList.add('failed');
+    s.onerror=()=>{host.classList.add('failed');live()};
     document.head.appendChild(s);
   }
+
+  /* The script is ~12KB and the section is below the fold, so it is fetched
+     once the page has gone quiet rather than waiting for the scroll to reach
+     it — by the time you get there the calendar is already up. The iframe
+     still only mounts near the section, two screens out. */
+  const idle=window.requestIdleCallback||(f=>setTimeout(f,1200));
+  if(document.readyState==='complete') idle(load);
+  else addEventListener('load',()=>idle(load));
 
   if(window.IntersectionObserver){
     const io=new IntersectionObserver(es=>{
       if(es.some(e=>e.isIntersecting)){io.disconnect();load()}
-    },{rootMargin:'400px'});
+    },{rootMargin:'1600px'});
     io.observe(host);
   }else load();
 
@@ -414,7 +430,9 @@ document.getElementById('burger').addEventListener('click',()=>goTo('#contact'))
   addEventListener('message',e=>{
     if(e.origin!=='https://calendly.com') return;
     const d=e.data;
-    if(!d||typeof d!=='object'||d.event!=='calendly.page_height') return;
+    if(!d||typeof d!=='object'||typeof d.event!=='string') return;
+    if(d.event.indexOf('calendly.')===0) live();   /* it is up — show it */
+    if(d.event!=='calendly.page_height') return;
     const px=parseInt(d.payload&&d.payload.height,10);
     if(px>200){ host.style.height=px+'px'; host.style.minHeight='0'; }
   });
