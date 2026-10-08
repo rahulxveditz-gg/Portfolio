@@ -54,7 +54,11 @@ html.light{
   --text:#1a1128;
   --muted:#5b4f73;
   --muted-2:#8b7fa6;
-  --grad:linear-gradient(135deg,#a78bfa 0%,#7c3aed 45%,#5b21b6 100%);
+  /* First stop darkened from #a78bfa. With the shader behind it the headline
+     sat on near-black; on the light hero that stop measured 2.15:1, under the
+     3:1 large-text floor. #8b5cf6 is 3.35:1 there and still clearly the light
+     end of the sweep. */
+  --grad:linear-gradient(135deg,#8b5cf6 0%,#7c3aed 45%,#5b21b6 100%);
   --grad-btn:linear-gradient(135deg,#7c3aed 0%,#6d28d9 45%,#4c1d95 100%);
   --header-bg:rgba(248,246,251,.72);
   --header-bg-scrolled:rgba(248,246,251,.92);
@@ -671,6 +675,12 @@ html.light .theme-toggle .icon-moon{opacity:.35}
 html.light .theme-toggle .toggle-knob{transform:translateX(24px)}
 .theme-toggle:hover{border-color:var(--violet-bright);box-shadow:0 0 12px rgba(168,85,247,.2)}
 /* light theme specific overrides */
+/* No shader in light theme. Its palette is hard-coded near-black in the
+   fragment shader, so it read as a dark band across a white page. What is
+   left is .hero-fx's own tint with the white .hero-core pooled over it —
+   still a soft field, just a light one. js/hero-shader.js stops drawing
+   while this is hidden so nothing renders off-screen at 60fps. */
+html.light #bgfx.on{opacity:0}
 html.light .hero-fx{background:#e8e2f4}
 html.light .hero-core{background:
   /* same single-ellipse smootherstep falloff as the dark core — two stacked

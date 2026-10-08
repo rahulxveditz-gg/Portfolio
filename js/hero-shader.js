@@ -138,7 +138,7 @@ void main(){
     cv.height = Math.max(1, Math.floor(h * SCALE));
     gl.viewport(0, 0, cv.width, cv.height);
     gl.uniform2f(uRes, cv.width, cv.height);
-    if(FROZEN) draw(FRAME);
+    if(FROZEN && !isLight()) draw(FRAME);
   }
   function draw(seconds){
     gl.uniform1f(uTime, seconds);
@@ -152,6 +152,12 @@ void main(){
   if(window.ResizeObserver) new ResizeObserver(resize).observe(cv);
   cv.classList.add('on');          /* fades in; stays at 0 if we never got here */
 
+  /* Light theme hides the canvas (its palette is near-black and there is no
+     light variant), so there is nothing to shade. Read per frame rather than
+     subscribing: it costs nothing and keeps the theme toggle from needing to
+     know this file exists. */
+  const isLight = () => document.documentElement.classList.contains('light');
+
   /* stop shading once the hero has scrolled off — nobody can see it */
   let onScreen = true;
   const hero = document.querySelector('.hero');
@@ -161,12 +167,15 @@ void main(){
   }
 
   if(FROZEN){
-    draw(FRAME);
+    if(!isLight()) draw(FRAME);
+    /* the one frozen frame still has to be drawn if the theme changes later */
+    new MutationObserver(()=>{ if(!isLight()) draw(FRAME); })
+      .observe(document.documentElement,{attributes:true,attributeFilter:['class']});
   }else{
     let running = true;
     document.addEventListener('visibilitychange', ()=>{ running = !document.hidden; });
     (function frame(ms){
-      if(running && onScreen) draw(ms * 0.001);
+      if(running && onScreen && !isLight()) draw(ms * 0.001);
       requestAnimationFrame(frame);
     })(0);
   }
