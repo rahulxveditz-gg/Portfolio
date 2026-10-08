@@ -32,6 +32,8 @@
   --header-inset-scrolled:rgba(255,255,255,.07);
   --header-shadow-scrolled:0 8px 32px rgba(6,4,12,.45);
   --grain-opacity:.085;
+  /* marker highlight: a light violet block with dark ink on it */
+  --mk-bg:#d8b4fe; --mk-ink:#140d26; --mk-edge:#a855f7;
   --aura-scrim:rgba(8,6,15,.14);
   --selection-bg:var(--violet-bright);
   --selection-color:#fff;
@@ -62,6 +64,7 @@ html.light{
   --header-inset-scrolled:rgba(255,255,255,.8);
   --header-shadow-scrolled:0 8px 32px rgba(109,40,217,.08);
   --grain-opacity:.03;
+  --mk-bg:#cdb2fa; --mk-ink:#1a1033; --mk-edge:#6d28d9;
   --aura-scrim:rgba(248,246,251,.5);
   --selection-bg:#7c3aed;
   --selection-color:#fff;
@@ -257,6 +260,27 @@ header.scrolled{background:var(--header-bg-scrolled);border-bottom-color:var(--h
 .hero h1 .line b{display:block;font-weight:800;opacity:0;transform:translateY(18px);filter:blur(12px);animation:heroIn 1.6s cubic-bezier(.22,1,.36,1) .15s forwards}
 .hero h1 .line:nth-child(2) b{animation-delay:.35s}
 .hero h1 .grad{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+/* Marker-pen highlight, as on an annotated headline.
+
+   The background sits on the element itself rather than on a pseudo-element.
+   The hero <b> animates `filter` for its entrance, which creates a stacking
+   context, and a z-index:-1 pseudo inside one of those is easy to get wrong —
+   an element's own background already paints behind its own text.
+
+   Everything is in em so it tracks the headline, which scales 48px -> 158px. */
+.mark{position:relative;display:inline-block;
+  padding:.05em .2em .02em;border-radius:.05em;
+  background:var(--mk-bg);color:var(--mk-ink);
+  font-style:italic;text-shadow:none}
+/* corner handles, like something selected on a canvas */
+.mark::after{content:"";position:absolute;inset:-.1em;pointer-events:none;
+  background-image:
+    linear-gradient(var(--mk-edge),var(--mk-edge)),
+    linear-gradient(var(--mk-edge),var(--mk-edge)),
+    linear-gradient(var(--mk-edge),var(--mk-edge)),
+    linear-gradient(var(--mk-edge),var(--mk-edge));
+  background-size:.11em .11em;background-repeat:no-repeat;
+  background-position:left top,right top,left bottom,right bottom}
 @keyframes heroIn{to{opacity:1;transform:none;filter:blur(0)}}
 @keyframes fade{to{opacity:1}}
 @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
