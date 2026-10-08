@@ -4,10 +4,12 @@
 
 /* ============ THEME / TOKENS ============ */
 :root{
-  --bg:#08060f;
-  --bg-2:#0d0918;
-  --surface:#140d26;
-  --surface-2:#1b1233;
+  /* The purple the whole theme is built on, dark end. Light is the same hue
+     lifted; the two are one palette, not two. */
+  --bg:#0e0824;
+  --bg-2:#140d31;
+  --surface:#1c1443;
+  --surface-2:#251b54;
   --line:rgba(168,133,247,.14);
   --line-strong:rgba(168,133,247,.28);
   --violet:#8b5cf6;
@@ -17,7 +19,10 @@
   --text:#f4f1fb;
   --muted:#c2b9da;         /* 4.67:1 over the gradient's bright regions */
   --muted-2:#6b6291;
-  --grad:linear-gradient(135deg,#c084fc 0%,#8b5cf6 45%,#6d28d9 100%);
+  /* End stop lifted from #6d28d9: on the new, less-black background it
+     measured 2.74:1, under the 3:1 large-text floor. #7e3bf0 is 3.50:1 on
+     the page and 3.64:1 on the hero. */
+  --grad:linear-gradient(135deg,#c084fc 0%,#8b5cf6 45%,#7e3bf0 100%);
   /* buttons run darker than --grad so the white stroke and glow read clearly.
      Every channel is 70% of the previous values — i.e. 30% darker. */
   --grad-btn:linear-gradient(135deg,#5729a6 0%,#4c1c98 45%,#351468 100%);
@@ -33,18 +38,23 @@
   --header-shadow-scrolled:0 8px 32px rgba(6,4,12,.45);
   --grain-opacity:.085;
   /* marker highlight: a light violet block with dark ink on it */
-  --mk-bg:#d8b4fe; --mk-ink:#140d26; --mk-edge:#a855f7;
-  --aura-scrim:rgba(8,6,15,.14);
+  --mk-bg:#d8b4fe; --mk-ink:#1c1443; --mk-edge:#a855f7;
+  --aura-scrim:rgba(14,8,36,.14);
+  /* the hero shader's three colours — js/hero-shader.js reads these, so the
+     shader is themed here with everything else rather than in the GLSL */
+  --fx-base:#0a0518;
+  --fx-mid:#26145e;
+  --fx-high:#503a86;
   --selection-bg:var(--violet-bright);
   --selection-color:#fff;
   --lb-veil:rgba(4,2,10,.9);
 }
 /* ============ LIGHT THEME ============ */
 html.light{
-  --bg:#f8f6fb;
-  --bg-2:#f0ecf5;
+  --bg:#f6f0fd;
+  --bg-2:#eae0f8;
   --surface:#ffffff;
-  --surface-2:#f3effb;
+  --surface-2:#f1e8fb;
   --line:rgba(109,40,217,.12);
   --line-strong:rgba(109,40,217,.22);
   --violet:#7c3aed;
@@ -60,8 +70,8 @@ html.light{
      end of the sweep. */
   --grad:linear-gradient(135deg,#8b5cf6 0%,#7c3aed 45%,#5b21b6 100%);
   --grad-btn:linear-gradient(135deg,#7c3aed 0%,#6d28d9 45%,#4c1d95 100%);
-  --header-bg:rgba(248,246,251,.72);
-  --header-bg-scrolled:rgba(248,246,251,.92);
+  --header-bg:rgba(246,240,253,.72);
+  --header-bg-scrolled:rgba(246,240,253,.92);
   --header-border:rgba(109,40,217,.08);
   --header-border-scrolled:rgba(109,40,217,.16);
   --header-inset:rgba(255,255,255,.6);
@@ -69,10 +79,10 @@ html.light{
   --header-shadow-scrolled:0 8px 32px rgba(109,40,217,.08);
   --grain-opacity:.03;
   --mk-bg:#cdb2fa; --mk-ink:#1a1033; --mk-edge:#6d28d9;
-  --aura-scrim:rgba(248,246,251,.5);
+  --aura-scrim:rgba(246,240,253,.5);
   --selection-bg:#7c3aed;
   --selection-color:#fff;
-  --lb-veil:rgba(248,246,251,.92);
+  --lb-veil:rgba(246,240,253,.92);
 }
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
@@ -117,7 +127,7 @@ img{max-width:100%;display:block}
    canvas fading in from opacity 0 lets the .aura orbs show through — and those
    are 80vw circles, so their edges read as big soft rings during the entrance. */
 .hero-fx{position:absolute;inset:0;z-index:0;overflow:hidden;pointer-events:none;
-  background:#04010a;
+  background:#080316;
   /* Smootherstep ramp, not a flat-then-drop. The old mask held #000 to 52%
      then fell away linearly; that corner is a slope discontinuity, and on a
      field this dark and smooth the eye reads it as a horizontal line (a Mach
@@ -153,30 +163,30 @@ img{max-width:100%;display:block}
        .92 — white copy measures 5.99:1 on the brightest pixel of the new field
        with no core at all, so this only has to take the odd highlight off. */
     radial-gradient(92% 80% at 50% 46%,
-      rgba(5,3,12,.7) 0%, rgba(5,3,12,.694) 10%, rgba(5,3,12,.6595) 20%,
-      rgba(5,3,12,.5858) 30%, rgba(5,3,12,.4778) 40%, rgba(5,3,12,.35) 50%,
-      rgba(5,3,12,.2222) 60%, rgba(5,3,12,.1142) 70%, rgba(5,3,12,.0405) 80%,
-      rgba(5,3,12,.006) 90%, rgba(5,3,12,0) 100%),
-    linear-gradient(180deg, rgba(8,6,15,.40), transparent 22%, transparent 86%, rgba(8,6,15,.34))}
+      rgba(9,5,20,.7) 0%, rgba(9,5,20,.694) 10%, rgba(9,5,20,.6595) 20%,
+      rgba(9,5,20,.5858) 30%, rgba(9,5,20,.4778) 40%, rgba(9,5,20,.35) 50%,
+      rgba(9,5,20,.2222) 60%, rgba(9,5,20,.1142) 70%, rgba(9,5,20,.0405) 80%,
+      rgba(9,5,20,.006) 90%, rgba(9,5,20,0) 100%),
+    linear-gradient(180deg, rgba(14,8,36,.40), transparent 22%, transparent 86%, rgba(14,8,36,.34))}
 @media(max-width:900px){
   .hero-core{background:
     radial-gradient(118% 76% at 50% 46%,
-      rgba(5,3,12,.72) 0%, rgba(5,3,12,.7138) 10%, rgba(5,3,12,.6783) 20%,
-      rgba(5,3,12,.6026) 30%, rgba(5,3,12,.4914) 40%, rgba(5,3,12,.36) 50%,
-      rgba(5,3,12,.2286) 60%, rgba(5,3,12,.1174) 70%, rgba(5,3,12,.0417) 80%,
-      rgba(5,3,12,.0062) 90%, rgba(5,3,12,0) 100%),
-    linear-gradient(180deg, rgba(8,6,15,.40), transparent 24%, transparent 84%, rgba(8,6,15,.36))}
+      rgba(9,5,20,.72) 0%, rgba(9,5,20,.7138) 10%, rgba(9,5,20,.6783) 20%,
+      rgba(9,5,20,.6026) 30%, rgba(9,5,20,.4914) 40%, rgba(9,5,20,.36) 50%,
+      rgba(9,5,20,.2286) 60%, rgba(9,5,20,.1174) 70%, rgba(9,5,20,.0417) 80%,
+      rgba(9,5,20,.0062) 90%, rgba(9,5,20,0) 100%),
+    linear-gradient(180deg, rgba(14,8,36,.40), transparent 24%, transparent 84%, rgba(14,8,36,.36))}
 }
 /* Tight shadows only. Wide halos (30–60px) read as soft dark ovals against the
    silk — that was the ring artifact, not a rendering bug. */
-.hero-inner h1 b:not(.grad){text-shadow:0 2px 8px rgba(5,3,12,.75)}
+.hero-inner h1 b:not(.grad){text-shadow:0 2px 8px rgba(9,5,20,.75)}
 /* NOTE: no filter on .grad. It's the same <b> that carries the heroIn entrance
    animation, which animates `filter` — one property, so a drop-shadow here
    fights the blur and leaves a halo ring during the entrance. The dark core
    behind the copy covers this line instead. */
 /* local protection for the smaller copy */
 .hero-inner .eyebrow,.hero-inner .hero-sub,.hero .scroll-hint{
-  text-shadow:0 1px 2px rgba(5,3,12,.95), 0 2px 7px rgba(5,3,12,.8)}
+  text-shadow:0 1px 2px rgba(9,5,20,.95), 0 2px 7px rgba(9,5,20,.8)}
 
 /* the calm drifting-orb background: everything below the hero, and the fallback
    if WebGL is unavailable */
@@ -439,7 +449,7 @@ section{padding:120px 0;position:relative}
 .lb-cap{position:absolute;left:0;right:0;bottom:0;padding:26px 28px;
   font-family:'Sora',system-ui,sans-serif;font-weight:700;
   font-size:clamp(17px,2vw,24px);color:var(--text);
-  background:linear-gradient(to top,rgba(8,6,15,.92),rgba(8,6,15,.5) 55%,transparent)}
+  background:linear-gradient(to top,rgba(14,8,36,.92),rgba(14,8,36,.5) 55%,transparent)}
 html.viewing #header{opacity:.25;transition:opacity .35s}
 
 /* `right` / `left` are set from the player's real scaled width, so both track
@@ -681,20 +691,20 @@ html.light .theme-toggle .toggle-knob{transform:translateX(24px)}
    still a soft field, just a light one. js/hero-shader.js stops drawing
    while this is hidden so nothing renders off-screen at 60fps. */
 html.light #bgfx.on{opacity:0}
-html.light .hero-fx{background:#e8e2f4}
+html.light .hero-fx{background:#e9e0f8}
 html.light .hero-core{background:
   /* same single-ellipse smootherstep falloff as the dark core — two stacked
      pools showed their edges here too, just in white */
   radial-gradient(92% 80% at 50% 46%,
-    rgba(248,246,251,.78) 0%, rgba(248,246,251,.7733) 10%, rgba(248,246,251,.7348) 20%,
-    rgba(248,246,251,.6528) 30%, rgba(248,246,251,.5324) 40%, rgba(248,246,251,.39) 50%,
-    rgba(248,246,251,.2476) 60%, rgba(248,246,251,.1272) 70%, rgba(248,246,251,.0452) 80%,
-    rgba(248,246,251,.0067) 90%, rgba(248,246,251,0) 100%),
-  linear-gradient(180deg, rgba(248,246,251,.45), transparent 24%, transparent 84%, rgba(248,246,251,.38))}
-html.light .hero-inner h1 b:not(.grad){text-shadow:0 2px 8px rgba(248,246,251,.75)}
+    rgba(246,240,253,.78) 0%, rgba(246,240,253,.7733) 10%, rgba(246,240,253,.7348) 20%,
+    rgba(246,240,253,.6528) 30%, rgba(246,240,253,.5324) 40%, rgba(246,240,253,.39) 50%,
+    rgba(246,240,253,.2476) 60%, rgba(246,240,253,.1272) 70%, rgba(246,240,253,.0452) 80%,
+    rgba(246,240,253,.0067) 90%, rgba(246,240,253,0) 100%),
+  linear-gradient(180deg, rgba(246,240,253,.45), transparent 24%, transparent 84%, rgba(246,240,253,.38))}
+html.light .hero-inner h1 b:not(.grad){text-shadow:0 2px 8px rgba(246,240,253,.75)}
 html.light .hero-inner .eyebrow,html.light .hero-inner .hero-sub,html.light .hero .scroll-hint{
-  text-shadow:0 1px 2px rgba(248,246,251,.95), 0 2px 7px rgba(248,246,251,.8)}
-html.light .about{background:linear-gradient(180deg,transparent,rgba(232,226,244,.5))}
+  text-shadow:0 1px 2px rgba(246,240,253,.95), 0 2px 7px rgba(246,240,253,.8)}
+html.light .about{background:linear-gradient(180deg,transparent,rgba(233,224,248,.5))}
 html.light .cur-dot{background:var(--deep)}
 html.light .cur-ring{background:rgba(124,58,237,.18);mix-blend-mode:multiply}
 html.light .cur-ring.hover{background:rgba(124,58,237,.12)}
