@@ -59,9 +59,13 @@ float snoise(vec2 v){
 /* Dark-oil palette, in the site's violet rather than the source's neutral grey.
    Lighting stays additive like the original: a base, a broad mid raised by a wide
    smoothstep, and a narrow sheen at half strength. */
-const vec3 COLOR_BASE = vec3(0.022, 0.012, 0.045);  /* near-black, violet bias */
-const vec3 COLOR_MID  = vec3(0.108, 0.058, 0.282);  /* deep violet body        */
-const vec3 COLOR_HIGH = vec3(0.260, 0.195, 0.448);  /* lilac sheen, deliberately dim */
+/* Uniforms, not constants: the palette comes from --fx-base / --fx-mid /
+   --fx-high on :root so a theme can restyle the shader in CSS with everything
+   else. The defaults below are the values these replaced, so a stylesheet that
+   does not define them renders exactly as before. */
+uniform vec3 COLOR_BASE;   /* near-black, violet bias */
+uniform vec3 COLOR_MID;    /* deep violet body        */
+uniform vec3 COLOR_HIGH;   /* lilac sheen, deliberately dim */
 
 void main(){
   vec2 uv = gl_FragCoord.xy / u_res;
@@ -127,6 +131,27 @@ void main(){
   const uRes = gl.getUniformLocation(prog, 'u_res');
   const uTime= gl.getUniformLocation(prog, 'u_time');
   const uScr = gl.getUniformLocation(prog, 'u_scroll');
+  const uCol = ['COLOR_BASE','COLOR_MID','COLOR_HIGH'].map(n => gl.getUniformLocation(prog, n));
+
+  /* The palette lives in CSS so the theme owns it. Read once per theme change,
+     never per frame — getComputedStyle forces a style resolve. */
+  const FALLBACK = [[0.022,0.012,0.045],[0.108,0.058,0.282],[0.260,0.195,0.448]];
+  function parseColor(v, fallback){
+    v = (v || '').trim();
+    /* accepts "#rrggbb" or "r, g, b" with channels 0-255 */
+    let m = /^#([0-9a-f]{6})$/i.exec(v);
+    if(m) return [0,2,4].map(i => parseInt(m[1].substr(i,2),16) / 255);
+    const n = v.split(',').map(s => parseFloat(s));
+    if(n.length === 3 && n.every(x => !isNaN(x))) return n.map(x => x / 255);
+    return fallback;
+  }
+  function readPalette(){
+    const cs = getComputedStyle(document.documentElement);
+    ['--fx-base','--fx-mid','--fx-high'].forEach((name, i) => {
+      const c = parseColor(cs.getPropertyValue(name), FALLBACK[i]);
+      gl.uniform3f(uCol[i], c[0], c[1], c[2]);
+    });
+  }
 
   const SCALE = 0.6;               /* render below native — it's all soft gradients */
   const FRAME = 0.0;               /* which moment to freeze on: try 0, 3, 7, 12... */
@@ -147,6 +172,10 @@ void main(){
   }
 
   const FROZEN = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  readPalette();
+  /* the theme class is the only thing that changes these */
+  new MutationObserver(() => { readPalette(); if(FROZEN && !isLight()) draw(FRAME); })
+    .observe(document.documentElement, {attributes:true, attributeFilter:['class']});
   resize();
   addEventListener('resize', resize);
   if(window.ResizeObserver) new ResizeObserver(resize).observe(cv);
@@ -167,10 +196,7 @@ void main(){
   }
 
   if(FROZEN){
-    if(!isLight()) draw(FRAME);
-    /* the one frozen frame still has to be drawn if the theme changes later */
-    new MutationObserver(()=>{ if(!isLight()) draw(FRAME); })
-      .observe(document.documentElement,{attributes:true,attributeFilter:['class']});
+    if(!isLight()) draw(FRAME);   /* the observer above redraws on theme change */
   }else{
     let running = true;
     document.addEventListener('visibilitychange', ()=>{ running = !document.hidden; });
