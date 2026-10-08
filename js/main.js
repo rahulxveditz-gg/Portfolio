@@ -407,6 +407,18 @@ document.getElementById('burger').addEventListener('click',()=>goTo('#contact'))
     io.observe(host);
   }else load();
 
+  /* Calendly posts its content height out of the iframe. Adopting it is what
+     stops the booking view scrolling inside its own frame — the inner
+     scrollbar and the clipped heading were a box that was simply too short.
+     Origin-checked: this listener runs on every postMessage the page gets. */
+  addEventListener('message',e=>{
+    if(e.origin!=='https://calendly.com') return;
+    const d=e.data;
+    if(!d||typeof d!=='object'||d.event!=='calendly.page_height') return;
+    const px=parseInt(d.payload&&d.payload.height,10);
+    if(px>200){ host.style.height=px+'px'; host.style.minHeight='0'; }
+  });
+
   /* rebuild on theme change — see the note on url() above */
   const btn=document.getElementById('themeToggle');
   if(btn) btn.addEventListener('click',()=>{ if(host.classList.contains('ready')) setTimeout(mount,80) });
