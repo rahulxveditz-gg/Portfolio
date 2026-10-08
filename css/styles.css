@@ -556,15 +556,10 @@ html.viewing #header{opacity:.25;transition:opacity .35s}
   border-radius:999px;background:var(--surface);color:var(--muted)}
 
 /* ============ TESTIMONIALS ============ */
-.quotes{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
-.quote{border:1px solid var(--line);border-radius:16px;padding:34px;background:var(--surface);transition:.4s}
-.quote:hover{border-color:var(--line-strong);transform:translateY(-5px);box-shadow:0 22px 46px -20px rgba(124,58,237,.45)}
-.quote .q{font-size:16px;line-height:1.6;margin-bottom:26px}
-.quote .who{display:flex;align-items:center;gap:14px}
-.quote .av{width:44px;height:44px;border-radius:50%;background:var(--grad);display:grid;place-items:center;font-family:'Sora';font-weight:700;font-size:16px}
-.quote .who b{font-size:15px;display:block}
-.quote .who span{font-size:13px;color:var(--muted)}
-.stars{color:var(--glow);margin-bottom:16px;font-size:14px;letter-spacing:2px}
+/* Two vertical testimonials, centred. They are .work cards so they inherit the
+   hover, the play affordance and the viewer wiring from the project grid. */
+.vouch{display:flex;flex-wrap:wrap;gap:26px;justify-content:center}
+.vouch .work{width:clamp(240px,26vw,320px)}
 
 /* ============ CONTACT ============ */
 .contact{padding-bottom:60px}
@@ -650,9 +645,7 @@ html.light .btn-primary{box-shadow:0 14px 40px -12px rgba(124,58,237,.3)}
 html.light .btn-primary:hover{box-shadow:0 0 14px rgba(124,58,237,.25),0 0 32px rgba(124,58,237,.15),0 0 58px rgba(168,85,247,.08),0 12px 32px -14px rgba(124,58,237,.3)}
 html.light .work:hover{box-shadow:0 26px 56px -22px rgba(124,58,237,.25)}
 html.light .step:hover{box-shadow:0 24px 50px -20px rgba(124,58,237,.2)}
-html.light .quote:hover{box-shadow:0 22px 46px -20px rgba(124,58,237,.2)}
 html.light .progress{box-shadow:0 0 12px rgba(124,58,237,.5)}
-html.light .stars{color:var(--violet)}
 html.light .burger span{background:var(--text)}
 /* lightbox viewer controls */
 html.light .vbtn{background:rgba(255,255,255,.82);border-color:rgba(109,40,217,.18);color:var(--text);
@@ -684,7 +677,7 @@ html.light .play{box-shadow:0 10px 26px rgba(124,58,237,.3)}
   .theme-toggle{margin-right:12px}
   .nav{display:flex;justify-content:space-between}   /* brand left, burger right */
   .burger{display:flex}
-  .work-grid,.proc,.quotes{grid-template-columns:1fr}
+  .work-grid,.proc{grid-template-columns:1fr}
   /* half the columns: long cards go 1-up, shorts 2-up */
   .works{grid-template-columns:repeat(2,1fr)}
   .serv-row{grid-template-columns:1fr;gap:14px;padding:34px 0}
@@ -711,7 +704,6 @@ html.light .play{box-shadow:0 10px 26px rgba(124,58,237,.3)}
   .eyebrow-sub{font-size:12.5px;letter-spacing:.2em}
   .short .info{padding:16px}
   .step{padding:28px 22px}
-  .quote{padding:28px}
 }
 
 /* ---------- small phones ---------- */

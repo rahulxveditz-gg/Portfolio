@@ -50,7 +50,9 @@ const lightbox=(function(){
   /* every project card, not just the ones with a video. Filtering to
      [data-yt] meant next stopped at the last long-form card and the short
      form section could never be reached. */
-  const cards=[...document.querySelectorAll('.works .work')];
+  /* every card on the page that has a video behind it, in document order:
+     long form, then reels, then the testimonials */
+  const cards=[...document.querySelectorAll('.works .work, .vouch .work')];
   if(!lb||!cards.length) return null;
   const veil=lb.querySelector('.lb-veil'),stage=lb.querySelector('.lb-stage'),
         box=lb.querySelector('.lb-box'),rail=lb.querySelector('.rail'),
@@ -103,7 +105,7 @@ const lightbox=(function(){
     zin.disabled=zMax<1.04;
     stage.style.setProperty('--z',1);
     bPrev.disabled=i<=0;bNext.disabled=i>=cards.length-1;
-    label.textContent=isShort(c)?'Short Form':'Long Form';
+    label.textContent=c.dataset.kind||(isShort(c)?'Short Form':'Long Form');
 
     /* Size first: that starts the width/height transition, so the box is
        already travelling between 16:9 and 9:16 while the contents swap. On the
@@ -256,7 +258,7 @@ document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
    hysteresis: a card appears once it is properly in view but only leaves once
    it is well clear of the edge, so parking mid-scroll can't strobe it.     */
 (function(){
-  const grids=[...document.querySelectorAll('.work-grid,.works')];
+  const grids=[...document.querySelectorAll('.work-grid,.works,.vouch')];
   const cards=[...document.querySelectorAll('.reveal-x')];
   if(!cards.length)return;
   /* no observer, no reveal — show the cards rather than hiding them forever */
