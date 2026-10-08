@@ -358,3 +358,56 @@ document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
 
 /* ===== mobile menu (simple scroll) ===== */
 document.getElementById('burger').addEventListener('click',()=>goTo('#contact'));
+
+
+/* ===== Calendly ===========================================================
+   The widget is ~100KB of third-party JavaScript, and Calendly sees every
+   visitor it loads for — so it is fetched only once the section is actually
+   scrolled to, the same deal as the video embeds.                        */
+(function(){
+  const host=document.getElementById('calendly');
+  if(!host||!host.dataset.cal) return;
+  const base=host.dataset.cal;
+
+  /* Calendly bakes its colours into the embed URL, so each theme needs its
+     own URL rather than a restyle. */
+  function url(){
+    const light=document.documentElement.classList.contains('light');
+    const p=new URLSearchParams({
+      hide_landing_page_details:'1',
+      hide_gdpr_banner:'1',
+      background_color: light?'ffffff':'140d26',
+      text_color:       light?'1a1033':'f4f1fb',
+      primary_color:    light?'6d28d9':'a855f7'
+    });
+    return base+'?'+p.toString();
+  }
+
+  let asked=false;
+  function mount(){
+    if(!window.Calendly||!window.Calendly.initInlineWidget){host.classList.add('failed');return}
+    host.innerHTML='';
+    window.Calendly.initInlineWidget({url:url(),parentElement:host});
+    host.classList.add('ready');
+  }
+  function load(){
+    if(asked) return; asked=true;
+    const s=document.createElement('script');
+    s.src='https://assets.calendly.com/assets/external/widget.js';
+    s.async=true;
+    s.onload=mount;
+    s.onerror=()=>host.classList.add('failed');
+    document.head.appendChild(s);
+  }
+
+  if(window.IntersectionObserver){
+    const io=new IntersectionObserver(es=>{
+      if(es.some(e=>e.isIntersecting)){io.disconnect();load()}
+    },{rootMargin:'400px'});
+    io.observe(host);
+  }else load();
+
+  /* rebuild on theme change — see the note on url() above */
+  const btn=document.getElementById('themeToggle');
+  if(btn) btn.addEventListener('click',()=>{ if(host.classList.contains('ready')) setTimeout(mount,80) });
+})();
