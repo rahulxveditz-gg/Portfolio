@@ -1,6 +1,6 @@
-# Rahul Visualzz — Portfolio
+# Editor Musk — Portfolio
 
-Portfolio site for Rahul Mehra, freelance video editor and motion designer.
+Portfolio site for Editor Musk, freelance video editor and motion designer.
 
 **Live:** https://rahulvisualzz.netlify.app
 
