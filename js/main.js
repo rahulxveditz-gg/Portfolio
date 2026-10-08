@@ -47,7 +47,10 @@ if(window.ResizeObserver) new ResizeObserver(syncHeight).observe(wrap);
    fixed overlay instead of something coupled to scroll position.           */
 const lightbox=(function(){
   const lb=document.getElementById('lb');
-  const cards=[...document.querySelectorAll('.works .work[data-yt]')];
+  /* every project card, not just the ones with a video. Filtering to
+     [data-yt] meant next stopped at the last long-form card and the short
+     form section could never be reached. */
+  const cards=[...document.querySelectorAll('.works .work')];
   if(!lb||!cards.length) return null;
   const veil=lb.querySelector('.lb-veil'),stage=lb.querySelector('.lb-stage'),
         box=lb.querySelector('.lb-box'),rail=lb.querySelector('.rail'),
@@ -55,6 +58,11 @@ const lightbox=(function(){
         bPrev=lb.querySelector('.vprev'),bNext=lb.querySelector('.vnext'),
         zin=lb.querySelector('.vzoom input');
   if(!veil||!stage||!box||!rail||!label||!zin) return null;
+
+  /* content lives in its own layer so it can cross-fade while the box
+     itself morphs between aspect ratios */
+  let inner=box.querySelector('.lb-inner');
+  if(!inner){inner=document.createElement('div');inner.className='lb-inner';box.appendChild(inner);}
 
   const CLEAR=84;                 /* the nav is ~72px of fixed height */
   const cl=(v,a,b)=>v<a?a:v>b?b:v;
@@ -86,6 +94,7 @@ const lightbox=(function(){
 
   function show(i){
     if(i<0||i>=cards.length) return;
+    const first=!open;
     cur=i;
     const c=cards[i],id=c.dataset.yt;
     const zMax=fitFor(c);
@@ -95,17 +104,47 @@ const lightbox=(function(){
     stage.style.setProperty('--z',1);
     bPrev.disabled=i<=0;bNext.disabled=i>=cards.length-1;
     label.textContent=isShort(c)?'Short Form':'Long Form';
-    /* built on open, destroyed on close — eight idle embeds would cost
-       megabytes, and removing it is also what stops playback */
-    box.innerHTML='';
-    const f=document.createElement('iframe');
-    f.title=(c.querySelector('h3')||{}).textContent||'Video';
-    f.allow='accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture';
-    f.allowFullscreen=true;
-    f.src='https://www.youtube-nocookie.com/embed/'+encodeURIComponent(id)
-         +'?autoplay=1&rel=0&playsinline=1';
-    box.appendChild(f);
+
+    /* Size first: that starts the width/height transition, so the box is
+       already travelling between 16:9 and 9:16 while the contents swap. On the
+       very first open there is no previous size to travel from, so the morph is
+       suppressed for one frame or the box would unfold from nothing. */
+    if(first) box.classList.add('no-morph');
     layout();
+    if(first){ void box.offsetWidth; box.classList.remove('no-morph'); }
+
+    /* Built on open, destroyed on close — seven idle embeds would cost
+       megabytes, and removing it is also what stops playback. Built
+       SYNCHRONOUSLY, inside the click, so autoplay still counts as
+       user-initiated; deferring it to a timeout breaks that. */
+    inner.innerHTML='';
+    if(id){
+      const f=document.createElement('iframe');
+      f.title=(c.querySelector('h3')||{}).textContent||'Video';
+      f.allow='accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture';
+      f.allowFullscreen=true;
+      f.src='https://www.youtube-nocookie.com/embed/'+encodeURIComponent(id)
+           +'?autoplay=1&rel=0&playsinline=1';
+      inner.appendChild(f);
+    }else{
+      /* No video behind this one yet. Show the card's own artwork rather than
+         an empty black box — the wN class carries its gradient, so it has to
+         come along for the CSS to match. */
+      const art=document.createElement('div');
+      art.className='lb-art '+((c.className.match(/\bw\d\b/)||[''])[0]);
+      const thumb=c.querySelector('.thumb');
+      if(thumb) art.innerHTML=thumb.innerHTML;
+      art.querySelectorAll('iframe,.play').forEach(n=>n.remove());
+      inner.appendChild(art);
+      const cap=document.createElement('div');
+      cap.className='lb-cap';
+      cap.textContent=(c.querySelector('h3')||{}).textContent||'';
+      inner.appendChild(cap);
+    }
+    /* fade the new contents up as the box finishes moving */
+    inner.style.transition='none'; inner.style.opacity='0';
+    void inner.offsetWidth;
+    inner.style.transition=''; inner.style.opacity='1';
     open=true;lb.classList.add('on');lb.setAttribute('aria-hidden','false');
     document.documentElement.classList.add('viewing');
   }
@@ -114,7 +153,7 @@ const lightbox=(function(){
     lb.classList.remove('on');lb.setAttribute('aria-hidden','true');
     document.documentElement.classList.remove('viewing');
     /* after the fade, so the player does not vanish before the panel does */
-    setTimeout(()=>{if(!open) box.innerHTML=''},340);
+    setTimeout(()=>{if(!open) inner.innerHTML=''},340);
   }
 
   cards.forEach((c,i)=>c.addEventListener('click',()=>show(i)));

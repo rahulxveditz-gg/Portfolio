@@ -378,6 +378,28 @@ section{padding:120px 0;position:relative}
 .lb-box{position:relative;overflow:hidden;border-radius:16px;background:#000;
   border:1px solid var(--line-strong);box-shadow:0 44px 100px -34px rgba(0,0,0,.85)}
 .lb-box iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+/* The morph. Transitioning width/height is not GPU-accelerated, but the
+   alternative — scaling with a transform — would squash the video inside, so
+   the box genuinely resizes. One element, half a second, which is affordable.
+   The rail and the format label travel on the same curve so the three stay
+   locked together instead of the buttons snapping to the new edge. */
+.lb-box{transition:width .55s cubic-bezier(.16,1,.3,1),
+                   height .55s cubic-bezier(.16,1,.3,1)}
+.lb-box.no-morph{transition:none}
+.lb .rail{transition:right .55s cubic-bezier(.16,1,.3,1),opacity .32s ease}
+.lb-label{transition:width .55s cubic-bezier(.16,1,.3,1),opacity .32s ease}
+/* contents cross-fade while the box travels, which hides the reflow of a
+   16:9 player inside a box on its way to 9:16 */
+.lb-inner{position:absolute;inset:0;opacity:1;transition:opacity .38s ease}
+.lb-inner iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+/* stand-in for a card with no video yet */
+.lb-art{position:absolute;inset:0;overflow:hidden}
+.lb-art .bg{position:absolute;inset:0}
+.lb-art .poster{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.lb-cap{position:absolute;left:0;right:0;bottom:0;padding:26px 28px;
+  font-family:'Sora',system-ui,sans-serif;font-weight:700;
+  font-size:clamp(17px,2vw,24px);color:var(--text);
+  background:linear-gradient(to top,rgba(8,6,15,.92),rgba(8,6,15,.5) 55%,transparent)}
 html.viewing #header{opacity:.25;transition:opacity .35s}
 
 /* `right` / `left` are set from the player's real scaled width, so both track
