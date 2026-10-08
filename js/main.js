@@ -288,13 +288,13 @@ document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
   place();
   let rt;addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(place,150)});
 
-  /* enter from — and exit toward — whichever edge the card is nearest */
+  /* which edge the card enters from */
   const edge=el=>{
     const r=el.getBoundingClientRect();
     return (r.top+r.height/2<innerHeight/2?-30:30)+'px';
   };
   function set(el,cls){
-    el.classList.remove('in','out','shown');
+    el.classList.remove('in','shown');
     el.style.setProperty('--dy',edge(el));
     void el.offsetWidth;                    /* restart the animation cleanly */
     el.classList.add(cls);
@@ -304,26 +304,25 @@ document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
      class comes off as soon as the animation is done */
   cards.forEach(el=>el.addEventListener('animationend',e=>{
     if(e.animationName==='rxIn'){el.classList.remove('in');el.classList.add('shown')}
-    else if(e.animationName==='rxOut'){el.classList.remove('out')}
   }));
 
-  const isOn=el=>el.classList.contains('in')||el.classList.contains('shown');
-  /* a card handed to the Long Form stack is driven by inline transforms, and a
-     CSS animation would outrank those — so leave it alone entirely */
-  const free=el=>!el.classList.contains('stacked');
+  /* Reveal once, then stop watching.
+
+     There used to be a matching exit animation driven by a second observer,
+     and it had a bug that left cards invisible. The two observers watched
+     different roots: this one the whole viewport, the other only its middle
+     60%. A card could leave the middle band — and be sent to opacity 0 — while
+     still intersecting THIS root, so this observer's state never flipped to
+     false. Scrolling back up produced no false->true transition, nothing
+     re-fired, and the card stayed blank. Revealing once removes the whole
+     class of problem. */
+  const el_shown=el=>el.classList.contains('in')||el.classList.contains('shown');
   const inObs=new IntersectionObserver(es=>es.forEach(e=>{
-    if(e.isIntersecting&&free(e.target)&&!isOn(e.target)) set(e.target,'in');
+    if(!e.isIntersecting) return;
+    if(!el_shown(e.target)) set(e.target,'in');
+    inObs.unobserve(e.target);
   }),{threshold:.18,rootMargin:'0px 0px -6% 0px'});
-  /* The exit has to START while the card is still on screen, or nobody sees
-     it. So this root is the middle 60% of the viewport, not the whole thing:
-     a card begins leaving once it clears that band, with roughly 40% of it
-     still visible to play the animation in. It can't fight the observer above
-     either — at the moment a card reveals it is already outside this band, and
-     an observer only fires on a change of state, so the reveal stands. */
-  const outObs=new IntersectionObserver(es=>es.forEach(e=>{
-    if(!e.isIntersecting&&free(e.target)&&isOn(e.target)) set(e.target,'out');
-  }),{threshold:0,rootMargin:'-20% 0px -20% 0px'});
-  cards.forEach(el=>{inObs.observe(el);outObs.observe(el)});
+  cards.forEach(el=>inObs.observe(el));
 })();
 
 /* ===== theme toggle ===== */

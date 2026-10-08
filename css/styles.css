@@ -335,12 +335,11 @@ section{padding:120px 0;position:relative}
   border-radius:5px;padding:2px 6px;color:var(--glow);white-space:nowrap}
 /* while it is mounted, the overlays get out of the player's way — the info bar
    would otherwise sit right on top of YouTube's controls */
-.work .thumb::after,.work .info,.work .play{transition:opacity .3s}
-.work.playing .thumb::after,.work.playing .info,.work.playing .play{
+.work .play{transition:opacity .3s}
+.work.playing .play{
   opacity:0;pointer-events:none}
 /* no category or year yet on the real videos — don't leave a gap for them */
 .cat:empty,.yr:empty{display:none}
-.work .thumb::after{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(8,6,15,.85),transparent 55%)}
 .w1 .bg{background:radial-gradient(120% 120% at 20% 10%,#c084fc,#6d28d9 55%,#2a1052)}
 .w2 .bg{background:radial-gradient(120% 120% at 80% 20%,#8b5cf6,#3b1178 60%,#14061f)}
 .w3 .bg{background:radial-gradient(120% 120% at 30% 80%,#a855f7,#4c1d95 55%,#1a0b2e)}
@@ -350,10 +349,11 @@ section{padding:120px 0;position:relative}
 .play{position:absolute;top:50%;left:50%;width:50px;height:50px;transform:translate(-50%,-50%) scale(.7);border-radius:50%;background:var(--grad);border:0;box-shadow:0 10px 26px rgba(124,58,237,.55);display:grid;place-items:center;opacity:0;transition:.4s}
 .work:hover .play{opacity:1;transform:translate(-50%,-50%) scale(1)}
 .play::before{content:"";border-left:13px solid #fff;border-top:8px solid transparent;border-bottom:8px solid transparent;margin-left:3px}
-.work .info{position:absolute;left:0;right:0;bottom:0;padding:26px;display:flex;justify-content:space-between;align-items:flex-end}
-.work .info h3{font-size:24px}
-.work .info .cat{font-size:12px;color:var(--glow);letter-spacing:.14em;text-transform:uppercase;margin-bottom:8px;display:block}
-.work .info .yr{font-size:13px;color:var(--muted);font-family:'Sora'}
+/* Caption hidden visually but left for screen readers: a card with no text
+   at all would be announced as an unlabelled link, and the viewer reads the
+   h3 for its iframe title and its stand-in caption. */
+.work .info{position:absolute;width:1px;height:1px;margin:-1px;padding:0;
+  overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0}
 .work.tall{grid-row:span 1}
 /* One 4-column grid carries both formats: long cards span two columns for a
    2-up row, reels span one for a 4-up row, headings span all four. */
@@ -446,7 +446,6 @@ html.viewing #header{opacity:.25;transition:opacity .35s}
 
 .short .thumb{aspect-ratio:9/16}
 .short .info{padding:26px}
-.short .info h3{font-size:24px}
 
 /* Directional card reveal, in and out. Deliberately animations and not
    transitions: .work already owns `transition` for its hover lift, and a
@@ -458,13 +457,8 @@ html.viewing #header{opacity:.25;transition:opacity .35s}
 .reveal-x{opacity:0}
 .reveal-x.shown{opacity:1}
 .reveal-x.in{animation:rxIn .9s cubic-bezier(.16,1,.3,1) var(--rd,0ms) both}
-/* no stagger on the way out — a delayed card would still be mid-exit after it
-   has scrolled off, so the row leaves together and finishes while visible */
-.reveal-x.out{animation:rxOut .5s cubic-bezier(.5,0,.75,.4) both}
 @keyframes rxIn{from{opacity:0;transform:translate3d(var(--dx,0px),var(--dy,30px),0)}
                 to{opacity:1;transform:none}}
-@keyframes rxOut{from{opacity:1;transform:none}
-                 to{opacity:0;transform:translate3d(var(--dx,0px),var(--dy,30px),0)}}
 
 /* ============ SERVICES ============ */
 .serv{border-top:1px solid var(--line)}
@@ -629,7 +623,6 @@ html.light .play{box-shadow:0 10px 26px rgba(124,58,237,.3)}
      bring the label down with the column rather than letting it crowd ---------- */
 @media(max-width:1100px){
   .short .info{padding:16px}
-  .short .info h3{font-size:17px}
 }
 
 /* ---------- tablet & below ---------- */
@@ -665,10 +658,7 @@ html.light .play{box-shadow:0 10px 26px rgba(124,58,237,.3)}
   .eyebrow{font-size:19px;gap:12px}
   .eyebrow::before,.eyebrow::after{width:34px}
   .eyebrow-sub{font-size:12.5px;letter-spacing:.2em}
-  .work .info{padding:20px}
-  .work .info h3{font-size:20px}
   .short .info{padding:16px}
-  .short .info h3{font-size:16px}
   .step{padding:28px 22px}
   .quote{padding:28px}
   .cinfo a{font-size:16px}
