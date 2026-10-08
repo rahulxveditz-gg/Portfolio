@@ -1,0 +1,48 @@
+# ---- OS cruft ----------------------------------------------------------
+.DS_Store
+._*
+Thumbs.db
+ehthumbs.db
+desktop.ini
+$RECYCLE.BIN/
+
+# ---- Editors / IDEs ----------------------------------------------------
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+*.sublime-workspace
+
+# ---- Node ---------------------------------------------------------------
+# The site ships no dependencies, but `npx serve` is used to preview it
+# locally and npm will drop these here if anything is ever installed.
+node_modules/
+package-lock.json
+npm-debug.log*
+yarn-error.log*
+.npm/
+
+# ---- Netlify ------------------------------------------------------------
+.netlify/
+# Temporary staging folder used when deploying only the files the page
+# references, rather than the whole working directory.
+_deploy_site/
+
+# ---- Secrets ------------------------------------------------------------
+# Nothing here needs them today. Listed so a stray key can never be
+# committed by accident later.
+.env
+.env.*
+*.pem
+*.key
+
+# ---- Scratch ------------------------------------------------------------
+*.log
+*.tmp
+.cache/
+
+# ---- Source masters -----------------------------------------------------
+# The untouched 7MB original behind Assets/profile.webp. Kept on disk, left
+# out of the repo: nothing on the page references it.
+Assets/Profile Photo.png

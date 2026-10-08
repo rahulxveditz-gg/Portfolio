@@ -1,0 +1,13 @@
+# Normalise line endings. Without this, Git converts LF to CRLF in the working
+# copy on Windows and a clone on any other OS shows every file as rewritten.
+* text=auto eol=lf
+
+# Binaries — never touch these, and don't try to diff them as text.
+*.png  binary
+*.webp binary
+*.jpg  binary
+*.jpeg binary
+*.ico  binary
+*.mp4  binary
+*.woff binary
+*.woff2 binary
