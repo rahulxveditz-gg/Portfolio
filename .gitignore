@@ -46,3 +46,6 @@ _deploy_site/
 # The untouched 7MB original behind Assets/profile.webp. Kept on disk, left
 # out of the repo: nothing on the page references it.
 Assets/Profile Photo.png
+
+# local look-and-feel previews, not part of the site
+preview-*.html
