@@ -200,9 +200,9 @@ img{max-width:100%;display:block}
 .aura .a3{width:78vw;height:78vw;bottom:-34vw;left:22vw;
   background:radial-gradient(circle,rgba(168,85,247,.24) 0%,rgba(168,85,247,.1944) 6.4%,rgba(168,85,247,.1536) 12.8%,rgba(168,85,247,.1176) 19.2%,rgba(168,85,247,.0864) 25.6%,rgba(168,85,247,.06) 32%,rgba(168,85,247,.0384) 38.4%,rgba(168,85,247,.0216) 44.8%,rgba(168,85,247,.0096) 51.2%,rgba(168,85,247,.0024) 57.6%,rgba(168,85,247,0) 64%);
   animation:drift3 34s ease-in-out infinite;transition:background .5s ease}
-html.light .aura .a1{background:radial-gradient(circle,rgba(124,58,237,.1) 0%,rgba(124,58,237,.081) 6.4%,rgba(124,58,237,.064) 12.8%,rgba(124,58,237,.049) 19.2%,rgba(124,58,237,.036) 25.6%,rgba(124,58,237,.025) 32%,rgba(124,58,237,.016) 38.4%,rgba(124,58,237,.009) 44.8%,rgba(124,58,237,.004) 51.2%,rgba(124,58,237,.001) 57.6%,rgba(124,58,237,0) 64%)}
-html.light .aura .a2{background:radial-gradient(circle,rgba(59,130,246,.08) 0%,rgba(59,130,246,.0648) 6.4%,rgba(59,130,246,.0512) 12.8%,rgba(59,130,246,.0392) 19.2%,rgba(59,130,246,.0288) 25.6%,rgba(59,130,246,.02) 32%,rgba(59,130,246,.0128) 38.4%,rgba(59,130,246,.0072) 44.8%,rgba(59,130,246,.0032) 51.2%,rgba(59,130,246,.0008) 57.6%,rgba(59,130,246,0) 64%)}
-html.light .aura .a3{background:radial-gradient(circle,rgba(168,85,247,.1) 0%,rgba(168,85,247,.081) 6.4%,rgba(168,85,247,.064) 12.8%,rgba(168,85,247,.049) 19.2%,rgba(168,85,247,.036) 25.6%,rgba(168,85,247,.025) 32%,rgba(168,85,247,.016) 38.4%,rgba(168,85,247,.009) 44.8%,rgba(168,85,247,.004) 51.2%,rgba(168,85,247,.001) 57.6%,rgba(168,85,247,0) 64%)}
+/* No orbs in light. At .08-.1 alpha over a near-white page they do not read
+   as depth, they read as a purple haze sitting on the paper. */
+html.light .aura span{display:none}
 
 /* scrim over the orb background */
 .aura::after{content:"";position:absolute;inset:0;pointer-events:none;
@@ -690,21 +690,19 @@ html.light .theme-toggle .toggle-knob{transform:translateX(24px)}
    left is .hero-fx's own tint with the white .hero-core pooled over it —
    still a soft field, just a light one. js/hero-shader.js stops drawing
    while this is hidden so nothing renders off-screen at 60fps. */
+/* ===== Light theme carries no background gradient =====
+   The shader, the drifting orbs, the hero wash and the About fade are all
+   devices for a dark page, where a soft glow reads as depth. Over near-white
+   they read as a dirty violet haze instead. Light is flat on purpose: the
+   colour comes from the type, the marker and the cards.
+   js/hero-shader.js also stops drawing while the canvas is hidden. */
 html.light #bgfx.on{opacity:0}
-html.light .hero-fx{background:#e9e0f8}
-html.light .hero-core{background:
-  /* same single-ellipse smootherstep falloff as the dark core — two stacked
-     pools showed their edges here too, just in white */
-  radial-gradient(92% 80% at 50% 46%,
-    rgba(246,240,253,.78) 0%, rgba(246,240,253,.7733) 10%, rgba(246,240,253,.7348) 20%,
-    rgba(246,240,253,.6528) 30%, rgba(246,240,253,.5324) 40%, rgba(246,240,253,.39) 50%,
-    rgba(246,240,253,.2476) 60%, rgba(246,240,253,.1272) 70%, rgba(246,240,253,.0452) 80%,
-    rgba(246,240,253,.0067) 90%, rgba(246,240,253,0) 100%),
-  linear-gradient(180deg, rgba(246,240,253,.45), transparent 24%, transparent 84%, rgba(246,240,253,.38))}
+html.light .hero-fx{background:transparent}
+html.light .hero-core{display:none}
 html.light .hero-inner h1 b:not(.grad){text-shadow:0 2px 8px rgba(246,240,253,.75)}
 html.light .hero-inner .eyebrow,html.light .hero-inner .hero-sub,html.light .hero .scroll-hint{
   text-shadow:0 1px 2px rgba(246,240,253,.95), 0 2px 7px rgba(246,240,253,.8)}
-html.light .about{background:linear-gradient(180deg,transparent,rgba(233,224,248,.5))}
+html.light .about{background:none}
 html.light .cur-dot{background:var(--deep)}
 html.light .cur-ring{background:rgba(124,58,237,.18);mix-blend-mode:multiply}
 html.light .cur-ring.hover{background:rgba(124,58,237,.12)}
