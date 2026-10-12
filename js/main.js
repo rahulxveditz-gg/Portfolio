@@ -73,7 +73,11 @@ const lightbox=(function(){
   /* base size: as large as fits with the rail's lane free and the nav cleared */
   function baseSize(c){
     const ar=isShort(c)?9/16:16/9;
-    let w=Math.min(isShort(c)?360:900,innerWidth*.68);
+    /* As large as the lane allows. This is exactly where the zoom slider's
+       maximum used to land -- the old 900/360 caps were what kept the player
+       short of it, and fitFor() computed the rest of the way. The .68 leaves
+       the rail and the format label their lanes; CLEAR*2 keeps the nav off it. */
+    let w=innerWidth*.68;
     let h=w/ar;
     const maxH=innerHeight-CLEAR*2;
     if(h>maxH){h=maxH;w=h*ar}
