@@ -442,6 +442,22 @@ section{padding:120px 0;position:relative}
 .lb-box{transition:width .55s cubic-bezier(.16,1,.3,1),
                    height .55s cubic-bezier(.16,1,.3,1)}
 .lb-box.no-morph{transition:none}
+/* Open/close zoom.
+   These are ANIMATIONS, not transitions, and that is the whole point: when an
+   animation finishes the element is back on its base style, so the player is
+   left with no transform at rest. A transition would park a transform on it
+   permanently, and a transform promotes the player to its own composited
+   layer -- which is exactly what was drawing a hairline across the video.
+   The transform exists only while the animation is running.
+   lbZoomOut keeps 'forwards' because the panel is being torn down anyway; the
+   class is removed on teardown, which clears it. */
+@keyframes lbZoomIn{from{transform:scale(.90)}to{transform:scale(1)}}
+@keyframes lbZoomOut{from{transform:scale(1)}to{transform:scale(.94)}}
+.lb.opening .lb-box{animation:lbZoomIn .46s cubic-bezier(.16,1,.3,1)}
+.lb.closing .lb-box{animation:lbZoomOut .26s cubic-bezier(.4,0,1,1) forwards}
+/* the rail and the label come with it rather than hanging in place */
+.lb.opening .rail,.lb.opening .lb-label{animation:lbZoomIn .46s cubic-bezier(.16,1,.3,1)}
+.lb.closing .rail,.lb.closing .lb-label{animation:lbZoomOut .26s cubic-bezier(.4,0,1,1) forwards}
 .lb .rail{transition:right .55s cubic-bezier(.16,1,.3,1),opacity .32s ease}
 .lb-label{transition:width .55s cubic-bezier(.16,1,.3,1),opacity .32s ease}
 /* contents cross-fade while the box travels, which hides the reflow of a

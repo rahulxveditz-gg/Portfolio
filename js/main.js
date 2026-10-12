@@ -68,6 +68,10 @@ const lightbox=(function(){
   const CLEAR=84;                 /* the nav is ~72px of fixed height */
   const cl=(v,a,b)=>v<a?a:v>b?b:v;
   let cur=-1,open=false;
+  /* open/close zoom. The classes come off again so the animation can replay on
+     the next open, and so the player is left with no transform at rest. */
+  const ZOOM_IN=460,ZOOM_OUT=340;
+  let zoomT=0;
 
   const isShort=c=>c.classList.contains('short');
   /* base size: as large as fits with the rail's lane free and the nav cleared */
@@ -152,13 +156,27 @@ const lightbox=(function(){
     inner.style.transition=''; inner.style.opacity='1';
     open=true;lb.classList.add('on');lb.setAttribute('aria-hidden','false');
     document.documentElement.classList.add('viewing');
+    /* only when opening from closed: prev/next already travels via the morph */
+    if(first){
+      clearTimeout(zoomT);
+      lb.classList.remove('closing');
+      lb.classList.add('opening');
+      zoomT=setTimeout(()=>lb.classList.remove('opening'),ZOOM_IN);
+    }
   }
   function hide(){
     open=false;cur=-1;
+    clearTimeout(zoomT);
+    lb.classList.remove('opening');lb.classList.add('closing');
     lb.classList.remove('on');lb.setAttribute('aria-hidden','true');
     document.documentElement.classList.remove('viewing');
-    /* after the fade, so the player does not vanish before the panel does */
-    setTimeout(()=>{if(!open) inner.innerHTML=''},340);
+    /* after the fade, so the player does not vanish before the panel does.
+       Dropping .closing here is also what takes the transform back off. */
+    zoomT=setTimeout(()=>{
+      if(open) return;                       /* reopened in the meantime */
+      inner.innerHTML='';
+      lb.classList.remove('closing');
+    },ZOOM_OUT);
   }
 
   cards.forEach((c,i)=>c.addEventListener('click',()=>show(i)));
