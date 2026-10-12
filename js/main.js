@@ -57,9 +57,8 @@ const lightbox=(function(){
   const veil=lb.querySelector('.lb-veil'),stage=lb.querySelector('.lb-stage'),
         box=lb.querySelector('.lb-box'),rail=lb.querySelector('.rail'),
         label=lb.querySelector('.lb-label'),bClose=lb.querySelector('.vclose'),
-        bPrev=lb.querySelector('.vprev'),bNext=lb.querySelector('.vnext'),
-        zin=lb.querySelector('.vzoom input');
-  if(!veil||!stage||!box||!rail||!label||!zin) return null;
+        bPrev=lb.querySelector('.vprev'),bNext=lb.querySelector('.vnext');
+  if(!veil||!stage||!box||!rail||!label) return null;
 
   /* content lives in its own layer so it can cross-fade while the box
      itself morphs between aspect ratios */
@@ -68,7 +67,7 @@ const lightbox=(function(){
 
   const CLEAR=84;                 /* the nav is ~72px of fixed height */
   const cl=(v,a,b)=>v<a?a:v>b?b:v;
-  let cur=-1,zoom=1,open=false;
+  let cur=-1,open=false;
 
   const isShort=c=>c.classList.contains('short');
   /* base size: as large as fits with the rail's lane free and the nav cleared */
@@ -80,16 +79,21 @@ const lightbox=(function(){
     if(h>maxH){h=maxH;w=h*ar}
     return {w:Math.round(w),h:Math.round(h)};
   }
-  function fitFor(c){
-    const b=baseSize(c);
-    return Math.max(1,Math.min(innerWidth*.68/b.w,(innerHeight-CLEAR*2)/b.h));
-  }
   /* the rail sits beside the player and steps outward as it grows */
   function layout(){
     if(cur<0) return;
     const b=baseSize(cards[cur]);
+    /* Land the player on whole pixels. The stage centres it, so the box has
+       to share the viewport's parity or it sits on a half-pixel -- which
+       rasterises the iframe off the pixel grid and shows up as a hairline
+       seam across the middle of the video. One pixel of size, invisible. */
+    const host=stage.getBoundingClientRect();   /* NOT innerWidth: the stage is
+       the viewport minus the scrollbar, and that odd 15px was leaving the
+       box on a half-pixel horizontally even once the height was right. */
+    if((Math.round(host.width)  - b.w) % 2) b.w += 1;
+    if((Math.round(host.height) - b.h) % 2) b.h += 1;
     box.style.width=b.w+'px';box.style.height=b.h+'px';
-    const gap=innerWidth/2-(b.w*zoom)/2;
+    const gap=innerWidth/2-b.w/2;
     rail.style.right=Math.max(14,gap-74)+'px';
     label.style.width=Math.max(90,gap-58)+'px';
   }
@@ -99,11 +103,6 @@ const lightbox=(function(){
     const first=!open;
     cur=i;
     const c=cards[i],id=c.dataset.yt;
-    const zMax=fitFor(c);
-    zoom=1;
-    zin.min=100;zin.max=Math.round(zMax*100);zin.value=100;
-    zin.disabled=zMax<1.04;
-    stage.style.setProperty('--z',1);
     bPrev.disabled=i<=0;bNext.disabled=i>=cards.length-1;
     label.textContent=c.dataset.kind||(isShort(c)?'Short Form':'Long Form');
 
@@ -163,11 +162,6 @@ const lightbox=(function(){
   veil.addEventListener('click',hide);
   bPrev.addEventListener('click',()=>show(cur-1));
   bNext.addEventListener('click',()=>show(cur+1));
-  zin.addEventListener('input',()=>{
-    zoom=+zin.value/100;
-    stage.style.setProperty('--z',zoom);
-    layout();
-  });
   addEventListener('keydown',e=>{
     if(!open) return;
     if(e.key==='Escape') hide();
