@@ -24,15 +24,13 @@
        revalidated but these are not, and an old script against new markup
        silently broke the whole video viewer once already. Bump it whenever
        anything in css/ or js/ changes. -->
-  <link rel="stylesheet" href="css/testcopy.css?v=2026-10-12c">
+  <link rel="stylesheet" href="css/testcopy.css?v=2026-10-19f">
   <!-- defer: both run after the document is parsed, in this order. The
        shader self-gates on readyState and main.js needs the DOM, so neither
        needs to block parsing. The theme script above stays inline on
        purpose — it has to set the class before the first paint. -->
-  <script src="js/testcopy-hero-shader.js?v=2026-10-12c" defer></script>
-  <script src="js/testcopy-main.js?v=2026-10-12c" defer></script>
-  <!-- test copy only: live palette editor, bottom-right -->
-  <script src="js/testcopy-colorlab.js?v=2026-10-19e" defer></script>
+  <script src="js/testcopy-hero-shader.js?v=2026-10-19f" defer></script>
+  <script src="js/testcopy-main.js?v=2026-10-19f" defer></script>
 
 </head>
 <body>
