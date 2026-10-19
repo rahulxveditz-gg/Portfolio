@@ -1,0 +1,462 @@
+/* Scrolling, reveals, video viewer, theme toggle
+   Extracted from index.html. Nothing here is minified or bundled — the site
+   has no build step, so these files are served exactly as written. */
+
+/* ===== smooth momentum scroll ===== */
+const wrap=document.getElementById('smooth-wrap');
+const header=document.getElementById('header'),bar=document.querySelector('.progress');
+let SMOOTH=false;
+let cur=0;                     /* eased scroll position */
+const SETTLE=.65;              /* seconds for wheel momentum to settle */
+const TAU=SETTLE/4.6;          /* time constant (frame-rate independent) */
+const NAV_MS=900;              /* nav-click travel time (was 1000 — 10% quicker) */
+/* easeInOutSine: of the curves tested it has both the lowest peak speed
+   (1.57x avg) and the longest deceleration, so it never feels rushed */
+const navEase=p=>-(Math.cos(Math.PI*p)-1)/2;
+let tween=null;                /* active anchor tween */
+
+function syncHeight(){
+  if(SMOOTH) document.body.style.height=wrap.getBoundingClientRect().height+'px';
+}
+/* re-evaluated on resize so it never gets stuck in the wrong mode */
+function evalSmooth(){
+  const ok = matchMedia('(hover:hover) and (pointer:fine)').matches
+          && innerWidth>900
+          && !matchMedia('(prefers-reduced-motion:reduce)').matches;
+  if(ok===SMOOTH){syncHeight();return}
+  SMOOTH=ok;
+  if(ok){
+    document.documentElement.classList.add('smooth');
+    cur=window.scrollY;
+    syncHeight();
+  }else{
+    document.documentElement.classList.remove('smooth');
+    document.body.style.height='';
+    wrap.style.transform='';
+  }
+}
+evalSmooth();
+addEventListener('resize',evalSmooth);
+addEventListener('load',evalSmooth);
+if(window.ResizeObserver) new ResizeObserver(syncHeight).observe(wrap);
+
+/* ===== video viewer =======================================================
+   A plain fixed lightbox: click a card, the page goes dark and the video plays
+   centred. It is NOT built out of the card itself — the card stays put in the
+   grid and the player is its own element, which is what lets this be a simple
+   fixed overlay instead of something coupled to scroll position.           */
+const lightbox=(function(){
+  const lb=document.getElementById('lb');
+  /* every project card, not just the ones with a video. Filtering to
+     [data-yt] meant next stopped at the last long-form card and the short
+     form section could never be reached. */
+  /* every card on the page that has a video behind it, in document order:
+     long form, then reels, then the testimonials */
+  const cards=[...document.querySelectorAll('.works .work, .vouch .work')];
+  if(!lb||!cards.length) return null;
+  const veil=lb.querySelector('.lb-veil'),stage=lb.querySelector('.lb-stage'),
+        box=lb.querySelector('.lb-box'),rail=lb.querySelector('.rail'),
+        label=lb.querySelector('.lb-label'),bClose=lb.querySelector('.vclose'),
+        bPrev=lb.querySelector('.vprev'),bNext=lb.querySelector('.vnext');
+  if(!veil||!stage||!box||!rail||!label) return null;
+
+  /* content lives in its own layer so it can cross-fade while the box
+     itself morphs between aspect ratios */
+  let inner=box.querySelector('.lb-inner');
+  if(!inner){inner=document.createElement('div');inner.className='lb-inner';box.appendChild(inner);}
+
+  const CLEAR=84;                 /* the nav is ~72px of fixed height */
+  const cl=(v,a,b)=>v<a?a:v>b?b:v;
+  let cur=-1,open=false;
+  /* open/close zoom. The classes come off again so the animation can replay on
+     the next open, and so the player is left with no transform at rest. */
+  const ZOOM_IN=460,ZOOM_OUT=340;
+  let zoomT=0;
+
+  const isShort=c=>c.classList.contains('short');
+  /* base size: as large as fits with the rail's lane free and the nav cleared */
+  function baseSize(c){
+    const ar=isShort(c)?9/16:16/9;
+    /* As large as the lane allows. This is exactly where the zoom slider's
+       maximum used to land -- the old 900/360 caps were what kept the player
+       short of it, and fitFor() computed the rest of the way. The .68 leaves
+       the rail and the format label their lanes; CLEAR*2 keeps the nav off it. */
+    let w=innerWidth*.68;
+    let h=w/ar;
+    const maxH=innerHeight-CLEAR*2;
+    if(h>maxH){h=maxH;w=h*ar}
+    return {w:Math.round(w),h:Math.round(h)};
+  }
+  /* the rail sits beside the player and steps outward as it grows */
+  function layout(){
+    if(cur<0) return;
+    const b=baseSize(cards[cur]);
+    /* Land the player on whole pixels. The stage centres it, so the box has
+       to share the viewport's parity or it sits on a half-pixel -- which
+       rasterises the iframe off the pixel grid and shows up as a hairline
+       seam across the middle of the video. One pixel of size, invisible. */
+    const host=stage.getBoundingClientRect();   /* NOT innerWidth: the stage is
+       the viewport minus the scrollbar, and that odd 15px was leaving the
+       box on a half-pixel horizontally even once the height was right. */
+    if((Math.round(host.width)  - b.w) % 2) b.w += 1;
+    if((Math.round(host.height) - b.h) % 2) b.h += 1;
+    box.style.width=b.w+'px';box.style.height=b.h+'px';
+    const gap=innerWidth/2-b.w/2;
+    rail.style.right=Math.max(14,gap-74)+'px';
+    label.style.width=Math.max(90,gap-58)+'px';
+  }
+
+  function show(i){
+    if(i<0||i>=cards.length) return;
+    const first=!open;
+    cur=i;
+    const c=cards[i],id=c.dataset.yt;
+    bPrev.disabled=i<=0;bNext.disabled=i>=cards.length-1;
+    label.textContent=c.dataset.kind||(isShort(c)?'Short Form':'Long Form');
+
+    /* Size first: that starts the width/height transition, so the box is
+       already travelling between 16:9 and 9:16 while the contents swap. On the
+       very first open there is no previous size to travel from, so the morph is
+       suppressed for one frame or the box would unfold from nothing. */
+    if(first) box.classList.add('no-morph');
+    layout();
+    if(first){ void box.offsetWidth; box.classList.remove('no-morph'); }
+
+    /* Built on open, destroyed on close — seven idle embeds would cost
+       megabytes, and removing it is also what stops playback. Built
+       SYNCHRONOUSLY, inside the click, so autoplay still counts as
+       user-initiated; deferring it to a timeout breaks that. */
+    inner.innerHTML='';
+    if(id){
+      const f=document.createElement('iframe');
+      f.title=(c.querySelector('h3')||{}).textContent||'Video';
+      f.allow='accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture';
+      f.allowFullscreen=true;
+      f.src='https://www.youtube-nocookie.com/embed/'+encodeURIComponent(id)
+           +'?autoplay=1&rel=0&playsinline=1';
+      inner.appendChild(f);
+    }else{
+      /* No video behind this one yet. Show the card's own artwork rather than
+         an empty black box — the wN class carries its gradient, so it has to
+         come along for the CSS to match. */
+      const art=document.createElement('div');
+      art.className='lb-art '+((c.className.match(/\bw\d\b/)||[''])[0]);
+      const thumb=c.querySelector('.thumb');
+      if(thumb) art.innerHTML=thumb.innerHTML;
+      art.querySelectorAll('iframe,.play').forEach(n=>n.remove());
+      inner.appendChild(art);
+      const cap=document.createElement('div');
+      cap.className='lb-cap';
+      cap.textContent=(c.querySelector('h3')||{}).textContent||'';
+      inner.appendChild(cap);
+    }
+    /* fade the new contents up as the box finishes moving */
+    inner.style.transition='none'; inner.style.opacity='0';
+    void inner.offsetWidth;
+    inner.style.transition=''; inner.style.opacity='1';
+    open=true;lb.classList.add('on');lb.setAttribute('aria-hidden','false');
+    document.documentElement.classList.add('viewing');
+    /* only when opening from closed: prev/next already travels via the morph */
+    if(first){
+      clearTimeout(zoomT);
+      lb.classList.remove('closing');
+      lb.classList.add('opening');
+      zoomT=setTimeout(()=>lb.classList.remove('opening'),ZOOM_IN);
+    }
+  }
+  function hide(){
+    open=false;cur=-1;
+    clearTimeout(zoomT);
+    lb.classList.remove('opening');lb.classList.add('closing');
+    lb.classList.remove('on');lb.setAttribute('aria-hidden','true');
+    document.documentElement.classList.remove('viewing');
+    /* after the fade, so the player does not vanish before the panel does.
+       Dropping .closing here is also what takes the transform back off. */
+    zoomT=setTimeout(()=>{
+      if(open) return;                       /* reopened in the meantime */
+      inner.innerHTML='';
+      lb.classList.remove('closing');
+    },ZOOM_OUT);
+  }
+
+  cards.forEach((c,i)=>c.addEventListener('click',()=>show(i)));
+  bClose.addEventListener('click',hide);
+  veil.addEventListener('click',hide);
+  bPrev.addEventListener('click',()=>show(cur-1));
+  bNext.addEventListener('click',()=>show(cur+1));
+  addEventListener('keydown',e=>{
+    if(!open) return;
+    if(e.key==='Escape') hide();
+    else if(e.key==='ArrowUp'){e.preventDefault();show(cur-1)}
+    else if(e.key==='ArrowDown'){e.preventDefault();show(cur+1)}
+  });
+  /* hold the page still underneath — a modal that scrolls its own background
+     reads as broken. Non-passive so preventDefault actually applies. */
+  const block=e=>{if(open) e.preventDefault()};
+  addEventListener('wheel',block,{passive:false});
+  addEventListener('touchmove',block,{passive:false});
+  addEventListener('resize',layout);
+  return {show,hide};
+})();
+
+/* ===== custom cursor ===== */
+const dot=document.querySelector('.cur-dot'),ring=document.querySelector('.cur-ring');
+let mx=innerWidth/2,my=innerHeight/2,rx=mx,ry=my;
+addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;dot.style.transform=`translate(${mx}px,${my}px) translate(-50%,-50%)`});
+document.querySelectorAll('a,button,[data-cursor]').forEach(el=>{
+  el.addEventListener('mouseenter',()=>ring.classList.add('hover'));
+  el.addEventListener('mouseleave',()=>ring.classList.remove('hover'));
+});
+
+/* ===== single render loop: scroll easing + cursor + progress ===== */
+let lastT=performance.now();
+(function frame(now){
+  now=now||performance.now();
+  const dt=Math.min(.05,(now-lastT)/1000); lastT=now;
+
+  if(tween){                                   /* nav click: drive the target */
+    const p=Math.min(1,(now-tween.t0)/(tween.ms||NAV_MS));   /* snaps run shorter */
+    const max=Math.max(0,document.documentElement.scrollHeight-innerHeight);
+    window.scrollTo(0,Math.min(max,tween.from+tween.delta*navEase(p)));
+    if(p>=1) tween=null;
+  }
+  /* the visible position always trails the target exponentially — decay is
+     asymptotic, so motion feathers away instead of cutting off at the end */
+  if(SMOOTH){
+    const tgt=window.scrollY;
+    cur+=(tgt-cur)*(1-Math.exp(-dt/TAU));
+    if(!tween&&Math.abs(tgt-cur)<.08) cur=tgt;
+  }else cur=window.scrollY;
+
+  if(SMOOTH) wrap.style.transform=`translate3d(0,${-cur.toFixed(2)}px,0)`;
+
+  rx+=(mx-rx)*.16; ry+=(my-ry)*.16;
+  ring.style.transform=`translate(${rx}px,${ry}px) translate(-50%,-50%)`;
+
+  const h=Math.max(1,document.documentElement.scrollHeight-innerHeight);
+  bar.style.width=Math.min(100,cur/h*100)+'%';
+  header.classList.toggle('scrolled',cur>40);
+
+  requestAnimationFrame(frame);
+})();
+
+/* ===== anchor links (let the easing do the smoothing) ===== */
+function goTo(sel){
+  const el=document.querySelector(sel);
+  if(!el)return;
+  const max=Math.max(0,document.documentElement.scrollHeight-innerHeight);
+  const y=Math.min(max,Math.max(0,el.getBoundingClientRect().top+cur-(sel==='#top'?0:70)));
+  if(SMOOTH) tween={from:window.scrollY,delta:y-window.scrollY,t0:performance.now()};
+  else window.scrollTo({top:y,behavior:'smooth'});
+}
+/* any manual scroll input cancels an in-flight nav tween */
+['wheel','touchstart','keydown'].forEach(ev=>addEventListener(ev,()=>{tween=null},{passive:true}));
+document.querySelectorAll('a[href^="#"]').forEach(a=>{
+  a.addEventListener('click',e=>{
+    const href=a.getAttribute('href');
+    if(!href||href.length<2)return;
+    if(!document.querySelector(href))return;
+    e.preventDefault();
+    goTo(href);
+  });
+});
+
+/* ===== reveal on scroll ===== */
+const io=new IntersectionObserver((es)=>{
+  es.forEach((e,i)=>{if(e.isIntersecting){setTimeout(()=>e.target.classList.add('in'),(i%3)*90);io.unobserve(e.target)}})
+},{threshold:.14});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+/* ===== project cards: directional reveal, in and out ======================
+   Which side a card flies in from is read from where it actually sits in its
+   grid, measured live, so it re-derives itself at every breakpoint instead of
+   being hard-coded per card. Two observers rather than one give it real
+   hysteresis: a card appears once it is properly in view but only leaves once
+   it is well clear of the edge, so parking mid-scroll can't strobe it.     */
+(function(){
+  const grids=[...document.querySelectorAll('.work-grid,.works,.vouch')];
+  const cards=[...document.querySelectorAll('.reveal-x')];
+  if(!cards.length)return;
+  /* no observer, no reveal — show the cards rather than hiding them forever */
+  if(!window.IntersectionObserver){cards.forEach(el=>el.classList.add('shown'));return}
+
+  function place(){
+    const dist=Math.max(26,Math.min(78,innerWidth*.062));
+    grids.forEach(g=>{
+      const gr=g.getBoundingClientRect(),gc=gr.left+gr.width/2;
+      /* querySelectorAll, not children: the Long Form cards sit inside
+         .stack-pin, which is display:contents in the fallback layout */
+      const kids=[...g.querySelectorAll('.reveal-x')];
+      /* single column: every card is as wide as the grid, so there is no left
+         or right to read — alternate sides by order instead */
+      const single=kids.every(c=>c.getBoundingClientRect().width>gr.width-4);
+      kids.forEach((c,i)=>{
+        let dir;
+        if(single) dir=i%2?1:-1;
+        else{
+          const r=c.getBoundingClientRect();
+          const t=((r.left+r.width/2)-gc)/(gr.width/2||1);
+          dir=Math.abs(t)<.18?0:(t<0?-1:1);   /* dead zone = a centred column */
+        }
+        c.style.setProperty('--dx',(dir*dist)+'px');
+        c.style.setProperty('--rd',(dir<0?0:dir===0?70:140)+'ms');
+      });
+    });
+  }
+  place();
+  let rt;addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(place,150)});
+
+  /* which edge the card enters from */
+  const edge=el=>{
+    const r=el.getBoundingClientRect();
+    return (r.top+r.height/2<innerHeight/2?-30:30)+'px';
+  };
+  function set(el,cls){
+    el.classList.remove('in','shown');
+    el.style.setProperty('--dy',edge(el));
+    void el.offsetWidth;                    /* restart the animation cleanly */
+    el.classList.add(cls);
+  }
+
+  /* fill-mode:both would pin the end frame and keep overriding :hover, so the
+     class comes off as soon as the animation is done */
+  cards.forEach(el=>el.addEventListener('animationend',e=>{
+    if(e.animationName==='rxIn'){el.classList.remove('in');el.classList.add('shown')}
+  }));
+
+  /* Reveal once, then stop watching.
+
+     There used to be a matching exit animation driven by a second observer,
+     and it had a bug that left cards invisible. The two observers watched
+     different roots: this one the whole viewport, the other only its middle
+     60%. A card could leave the middle band — and be sent to opacity 0 — while
+     still intersecting THIS root, so this observer's state never flipped to
+     false. Scrolling back up produced no false->true transition, nothing
+     re-fired, and the card stayed blank. Revealing once removes the whole
+     class of problem. */
+  const el_shown=el=>el.classList.contains('in')||el.classList.contains('shown');
+  const inObs=new IntersectionObserver(es=>es.forEach(e=>{
+    if(!e.isIntersecting) return;
+    if(!el_shown(e.target)) set(e.target,'in');
+    inObs.unobserve(e.target);
+  }),{threshold:.18,rootMargin:'0px 0px -6% 0px'});
+  cards.forEach(el=>inObs.observe(el));
+})();
+
+/* ===== theme toggle ===== */
+(function(){
+  const html = document.documentElement;
+  const btn = document.getElementById('themeToggle');
+  if(!btn) return;
+  const STORAGE_KEY = 'rv-theme';
+  
+  function applyTheme(theme){
+    if(theme === 'light'){
+      html.classList.add('light');
+    } else {
+      html.classList.remove('light');
+    }
+    /* The canvas is hidden in light theme by css/styles.css, and
+       js/hero-shader.js stops drawing while it is. Nothing to set here: an
+       inline opacity would outrank the stylesheet and is what used to leave
+       the dark shader showing through at 18% over the light page. */
+  }
+  
+  /* default to light as the user requested; honour saved preference */
+  const saved = localStorage.getItem(STORAGE_KEY);
+  const initial = saved || 'light';
+  applyTheme(initial);
+  
+  btn.addEventListener('click', ()=>{
+    const isLight = html.classList.contains('light');
+    const next = isLight ? 'dark' : 'light';
+    applyTheme(next);
+    localStorage.setItem(STORAGE_KEY, next);
+  });
+})();
+
+/* ===== mobile menu (simple scroll) ===== */
+document.getElementById('burger').addEventListener('click',()=>goTo('#contact'));
+
+
+/* ===== Calendly ===========================================================
+   The widget is ~100KB of third-party JavaScript, and Calendly sees every
+   visitor it loads for — so it is fetched only once the section is actually
+   scrolled to, the same deal as the video embeds.                        */
+(function(){
+  const host=document.getElementById('calendly');
+  if(!host||!host.dataset.cal) return;
+  const base=host.dataset.cal;
+
+  /* Calendly bakes its colours into the embed URL, so each theme needs its
+     own URL rather than a restyle. */
+  function url(){
+    const light=document.documentElement.classList.contains('light');
+    const p=new URLSearchParams({
+      hide_landing_page_details:'1',
+      hide_gdpr_banner:'1',
+      background_color: light?'ffffff':'140d26',
+      text_color:       light?'1a1033':'f4f1fb',
+      primary_color:    light?'6d28d9':'a855f7'
+    });
+    return base+'?'+p.toString();
+  }
+
+  let asked=false;
+  function mount(){
+    if(!window.Calendly||!window.Calendly.initInlineWidget){host.classList.add('failed');return}
+    host.innerHTML='';
+    window.Calendly.initInlineWidget({url:url(),parentElement:host});
+    host.classList.add('ready');
+    /* Calendly's own loading screen is a full-height white rectangle, so the
+       frame stays hidden behind our placeholder until it says it has rendered.
+       The timeout is the backstop: if no message ever arrives, showing
+       Calendly's screen beats showing ours forever. */
+    clearTimeout(reveal); reveal=setTimeout(live,4000);
+  }
+  let reveal=0;
+  function live(){ clearTimeout(reveal); host.classList.add('live'); }
+
+  function load(){
+    if(asked) return; asked=true;
+    const s=document.createElement('script');
+    s.src='https://assets.calendly.com/assets/external/widget.js';
+    s.async=true;
+    s.onload=mount;
+    s.onerror=()=>{host.classList.add('failed');live()};
+    document.head.appendChild(s);
+  }
+
+  /* The script is ~12KB and the section is below the fold, so it is fetched
+     once the page has gone quiet rather than waiting for the scroll to reach
+     it — by the time you get there the calendar is already up. The iframe
+     still only mounts near the section, two screens out. */
+  const idle=window.requestIdleCallback||(f=>setTimeout(f,1200));
+  if(document.readyState==='complete') idle(load);
+  else addEventListener('load',()=>idle(load));
+
+  if(window.IntersectionObserver){
+    const io=new IntersectionObserver(es=>{
+      if(es.some(e=>e.isIntersecting)){io.disconnect();load()}
+    },{rootMargin:'1600px'});
+    io.observe(host);
+  }else load();
+
+  /* Calendly posts its content height out of the iframe. Adopting it is what
+     stops the booking view scrolling inside its own frame — the inner
+     scrollbar and the clipped heading were a box that was simply too short.
+     Origin-checked: this listener runs on every postMessage the page gets. */
+  addEventListener('message',e=>{
+    if(e.origin!=='https://calendly.com') return;
+    const d=e.data;
+    if(!d||typeof d!=='object'||typeof d.event!=='string') return;
+    if(d.event.indexOf('calendly.')===0) live();   /* it is up — show it */
+    if(d.event!=='calendly.page_height') return;
+    const px=parseInt(d.payload&&d.payload.height,10);
+    if(px>200){ host.style.height=px+'px'; host.style.minHeight='0'; }
+  });
+
+  /* rebuild on theme change — see the note on url() above */
+  const btn=document.getElementById('themeToggle');
+  if(btn) btn.addEventListener('click',()=>{ if(host.classList.contains('ready')) setTimeout(mount,80) });
+})();

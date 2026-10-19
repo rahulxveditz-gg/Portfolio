@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<script>
+/* Prevent flash of wrong theme — runs before CSS paints */
+(function(){
+  var t = localStorage.getItem('rv-theme');
+  if(!t) t = 'light'; /* default light */
+  if(t === 'light') document.documentElement.classList.add('light');
+})();
+</script>
+<title>[TEST COPY] Editor Musk — Video Editor & Motion Designer</title>
+<meta name="description" content="Freelance video editor and motion designer crafting cinematic stories that move." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- the booking widget lives on these two; warming them up front takes the
+     DNS and TLS round trips off the critical path when it does load -->
+<link rel="preconnect" href="https://assets.calendly.com" crossorigin>
+<link rel="preconnect" href="https://calendly.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Sora:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <!-- ?v= is a cache key, not a query the server reads. index.html is
+       revalidated but these are not, and an old script against new markup
+       silently broke the whole video viewer once already. Bump it whenever
+       anything in css/ or js/ changes. -->
+  <link rel="stylesheet" href="css/testcopy.css?v=2026-10-12c">
+  <!-- defer: both run after the document is parsed, in this order. The
+       shader self-gates on readyState and main.js needs the DOM, so neither
+       needs to block parsing. The theme script above stays inline on
+       purpose — it has to set the class before the first paint. -->
+  <script src="js/testcopy-hero-shader.js?v=2026-10-12c" defer></script>
+  <script src="js/testcopy-main.js?v=2026-10-12c" defer></script>
+
+</head>
+<body>
+<!-- =====================================================================
+     TEST COPY of index.html. It loads css/testcopy.css and
+     js/testcopy-*.js, which are copies too, so nothing done here can reach
+     the live page. Assets/ is shared deliberately.
+     When a change here is settled, port it back to index.html and its own
+     css/js -- this file does not feed into them.
+     ===================================================================== -->
+
+<!-- animated ambient background -->
+<div class="aura" aria-hidden="true">
+  <span class="a1"></span><span class="a2"></span><span class="a3"></span>
+</div>
+
+
+
+<!-- cursor -->
+<div class="cur-dot"></div>
+<div class="cur-ring"></div>
+<div class="progress"></div>
+
+<!-- NAV -->
+<header id="header">
+  <div class="wrap nav">
+    <a href="#top" class="brand" data-cursor>
+      <i class="dot" role="img" aria-label="Available for work"></i>Editor <span>Musk</span>
+    </a>
+    <ul class="menu">
+      <li><a href="#work">Work</a></li>
+      <li><a href="#services">Services</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+    <div class="nav-right">
+      <button class="theme-toggle" id="themeToggle" aria-label="Toggle light/dark theme" data-cursor>
+        <span class="toggle-track">
+          <span class="toggle-icon icon-moon">🌙</span>
+          <span class="toggle-icon icon-sun">☀️</span>
+        </span>
+        <span class="toggle-knob"></span>
+      </button>
+      <a href="#contact" class="nav-cta" data-cursor>Let's talk</a>
+      <button class="burger" id="burger" aria-label="Menu"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</header>
+
+<div id="smooth-wrap">
+
+<!-- HERO -->
+<section class="hero" id="top">
+  <!-- chrome shader lives inside the hero and scrolls away with it; the mask on
+       .hero-fx feathers its bottom edge into the orb background below -->
+  <div class="hero-fx" aria-hidden="true">
+    <canvas id="bgfx"></canvas>
+    <span class="hero-core"></span>
+  </div>
+  <div class="wrap hero-inner">
+    <span class="eyebrow">Video Editor · Motion Designer</span>
+    <h1>
+      <span class="line"><b><span class="mark">CRAFTING</span></b></span>
+      <span class="line"><b class="grad">STORIES IN MOTION</b></span>
+    </h1>
+    <p class="hero-sub">A freelance video editor & motion designer shaping brands, films, and campaigns through rhythm, emotion, and cinematic craft.</p>
+    <div class="hero-actions">
+      <a href="#work" class="btn-primary" data-cursor>View My Works<span>↓</span></a>
+      <a href="#contact" class="btn-ghost" data-cursor>Get in touch</a>
+    </div>
+  </div>
+  <div class="scroll-hint">Scroll<div class="ln"></div></div>
+</section>
+
+<!-- WORK (FIRST — the showcase) -->
+<section id="work">
+  <div class="wrap">
+    <!-- One 4-column grid carries both formats: long cards span two columns for
+         a 2-up row, reels span one for a 4-up row, headings span all four. -->
+    <div class="works">
+      <div class="sec-head reveal">
+        <span class="eyebrow">Projects</span>
+        <span class="eyebrow-sub">Long Form</span>
+      </div>
+      <!-- data-yt is the whole hook: the player is built on open, never on load -->
+      <div class="work reveal-x" data-cursor="Play" data-yt="4tOm5hfEzyU">
+        <div class="thumb"><img class="poster" src="Assets/thumb-4tOm5hfEzyU.webp" width="1280" height="720" alt="" loading="lazy" decoding="async"><div class="play"></div></div>
+        <div class="info"><div><span class="cat"></span><h3>OpenClaw usage</h3></div><span class="yr"></span></div></div>
+      <div class="work reveal-x" data-cursor="Play" data-yt="nm_SRZZKyYY">
+        <div class="thumb"><img class="poster" src="Assets/thumb-nm_SRZZKyYY.webp" width="1280" height="720" alt="" loading="lazy" decoding="async"><div class="play"></div></div>
+        <div class="info"><div><span class="cat"></span><h3>VSL Medical</h3></div><span class="yr"></span></div></div>
+      <div class="work reveal-x" data-cursor="Play" data-yt="zC_3-1u6fg8">
+        <div class="thumb"><img class="poster" src="Assets/thumb-zC_3-1u6fg8.webp" width="1280" height="720" alt="" loading="lazy" decoding="async"><div class="play"></div></div>
+        <div class="info"><div><span class="cat"></span><h3>Clint Coons video</h3></div><span class="yr"></span></div></div>
+      <div class="work reveal-x" data-cursor="Play" data-yt="FO5RVzgbgnw">
+        <div class="thumb"><img class="poster" src="Assets/thumb-FO5RVzgbgnw.webp" width="1280" height="720" alt="" loading="lazy" decoding="async"><div class="play"></div></div>
+        <div class="info"><div><span class="cat"></span><h3>7 INSANE Use Cases For Hermes Agent</h3></div><span class="yr"></span></div></div>
+      <div class="sec-head reveal"><span class="eyebrow-sub">Short Form</span></div>
+      <div class="work short w5 reveal-x" data-cursor="Play"><div class="thumb"><div class="bg"></div><div class="play"></div></div><div class="info"><div><span class="cat">Reel</span><h3>Flow State</h3></div></div></div>
+      <div class="work short w2 reveal-x" data-cursor="Play"><div class="thumb"><div class="bg"></div><div class="play"></div></div><div class="info"><div><span class="cat">Short</span><h3>Golden Hour</h3></div></div></div>
+      <div class="work short w6 reveal-x" data-cursor="Play"><div class="thumb"><div class="bg"></div><div class="play"></div></div><div class="info"><div><span class="cat">TikTok</span><h3>Fast Cuts</h3></div></div></div>
+      <div class="work short w3 reveal-x" data-cursor="Play"><div class="thumb"><div class="bg"></div><div class="play"></div></div><div class="info"><div><span class="cat">Promo</span><h3>The Drop</h3></div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section id="services">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="eyebrow">What I Do</span>
+      <h2>Services</h2>
+      <p>From raw footage to final master — a complete post-production craft under one roof.</p>
+    </div>
+    <div class="serv">
+      <div class="serv-row reveal">
+        <div class="idx">A /</div>
+        <h3>Video Editing</h3>
+        <div><p class="desc">Narrative-first editing that finds the story in the footage — controlling pace, emotion, and flow so every cut lands.</p><div class="tags"><span>Narrative Editing</span><span>Pacing & Rhythm</span><span>Multicam</span><span>Sound Sync</span></div></div>
+      </div>
+      <div class="serv-row reveal">
+        <div class="idx">B /</div>
+        <h3>Motion Graphics</h3>
+        <div><p class="desc">Titles, animated graphics, and brand motion that add polish and personality without ever distracting from the story.</p><div class="tags"><span>Title Design</span><span>Animated Graphics</span><span>Logo Animation</span><span>Lower Thirds</span></div></div>
+      </div>
+      <div class="serv-row reveal">
+        <div class="idx">C /</div>
+        <h3>Color Grading</h3>
+        <div><p class="desc">Cinematic color that sets the mood — from clean primary grades to bold, stylized looks and consistent LUTs.</p><div class="tags"><span>Primary Grade</span><span>Selective Color</span><span>LUT Creation</span><span>Look Dev</span></div></div>
+      </div>
+      <div class="serv-row reveal">
+        <div class="idx">D /</div>
+        <h3>Post Production</h3>
+        <div><p class="desc">The full finishing pipeline — sound design, compositing, and delivery in every format your platforms demand.</p><div class="tags"><span>Sound Design</span><span>VFX Compositing</span><span>Delivery Formats</span><span>Consulting</span></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<!-- PROCESS -->
+<section id="process">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="eyebrow">How It Works</span>
+      <h2>The Process</h2>
+      <p>A clear, collaborative flow from first call to final delivery.</p>
+    </div>
+    <div class="proc">
+      <div class="step reveal"><span class="n">01</span><h4>Discovery</h4><p>We start by listening — understanding your goals, audience, and the story you want to tell.</p></div>
+      <div class="step reveal"><span class="n">02</span><h4>Edit</h4><p>Footage becomes narrative. I shape the first cut, finding rhythm, structure, and emotion.</p></div>
+      <div class="step reveal"><span class="n">03</span><h4>Refine</h4><p>Together we sharpen it — feedback rounds on pacing, motion, sound, and color until it sings.</p></div>
+      <div class="step reveal"><span class="n">04</span><h4>Deliver</h4><p>Final master exported in every format you need, optimized for each platform and screen.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section>
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="eyebrow">Client Reflections</span>
+      <h2>Kind Words</h2>
+      <p>In their own words — from the teams and creators I've worked with.</p>
+    </div>
+    <div class="vouch">
+      <div class="work short reveal-x" data-cursor="Play"
+           data-yt="OfVwZl7HtZ0" data-kind="Client Testimonial">
+        <div class="thumb"><img class="poster" src="Assets/thumb-OfVwZl7HtZ0.webp" width="478" height="850" alt="" loading="lazy" decoding="async"><div class="play"></div></div>
+        <div class="info"><div><span class="cat"></span><h3>Craig Pereira</h3></div></div></div>
+      <div class="work short reveal-x" data-cursor="Play"
+           data-yt="5rStEyuUvQw" data-kind="Client Testimonial">
+        <div class="thumb"><img class="poster" src="Assets/thumb-5rStEyuUvQw.webp" width="576" height="1024" alt="" loading="lazy" decoding="async"><div class="play"></div></div>
+        <div class="info"><div><span class="cat"></span><h3>Aditya Earnest John</h3></div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT (near the end — Portavia style) -->
+<section id="about" class="about">
+  <div class="wrap">
+    <div class="sec-head reveal"><span class="eyebrow">About Me</span></div>
+    <div class="about-col">
+      <!-- status kicker. Edit or delete this line — it is a claim about your
+           availability, not something the page can know. -->
+      <span class="pill reveal"><i></i>Available for new work</span>
+      <div class="about-photo reveal">
+        <img src="Assets/profile.webp" width="1000" height="1000"
+             alt="Editor Musk — video editor and motion designer"
+             loading="lazy" decoding="async">
+      </div>
+      <h2 class="reveal">The editor behind the cuts.</h2>
+      <p class="lead reveal">I'm a freelance video editor &amp; motion designer with 6 years turning footage into stories that move people.</p>
+      <p class="reveal">I work closely with brands, agencies, and creators — shaping each project with intention and care. Every frame is chosen for a reason: the right pace, the right sound, the right light.</p>
+      <p class="reveal">Based online, working globally. If you're looking for edits that feel considered, cinematic, and built to last beyond trends — let's talk.</p>
+      <div class="tools reveal">
+        <span>Premiere Pro</span><span>After Effects</span><span>DaVinci Resolve</span><span>Cinema 4D</span><span>Audition</span><span>Photoshop</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT (the very end) -->
+<section id="contact" class="contact">
+  <div class="wrap">
+    <div class="sec-head reveal"><span class="eyebrow">Get In Touch</span></div>
+    <div class="contact-col">
+      <h2 class="reveal">Let's make something <span class="grad-ink">cinematic.</span></h2>
+      <p class="lead reveal">Have a project in mind? Grab a slot that suits you — 30 minutes, no obligation.</p>
+
+      <div class="cal-frame reveal">
+        <!-- Filled in by js/main.js once this scrolls into view. The widget
+             script is third-party and ~100KB, so it is not fetched on load. -->
+        <div id="calendly" class="cal-embed" data-resize="true"
+             data-cal="https://calendly.com/rahulvisualzz/30min"></div>
+        <noscript>
+          <a class="cal-fallback" href="https://calendly.com/rahulvisualzz/30min"
+             target="_blank" rel="noopener">Book a 30-minute call →</a>
+        </noscript>
+      </div>
+
+      <!-- TODO: real profile URLs. Only the email is live. -->
+      <div class="socials reveal">
+        <a href="mailto:rahulvisualzz@gmail.com" aria-label="Email" data-cursor><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 5h18a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1zm1.6 2L12 12l7.4-5H4.6zM20 8.9l-7.45 5a1 1 0 0 1-1.1 0L4 8.9V17h16V8.9z"/></svg></a>
+        <a href="https://www.instagram.com/rahul.visualzz/" aria-label="Instagram" target="_blank" rel="noopener" data-cursor><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2c2.72 0 3.06.01 4.12.06 1.07.05 1.8.22 2.43.47.66.25 1.22.6 1.77 1.15.55.55.9 1.11 1.15 1.77.25.64.42 1.36.47 2.43.05 1.07.06 1.4.06 4.12s-.01 3.06-.06 4.12c-.05 1.07-.22 1.8-.47 2.43-.25.66-.6 1.22-1.15 1.77-.55.55-1.11.9-1.77 1.15-.64.25-1.36.42-2.43.47-1.07.05-1.4.06-4.12.06s-3.06-.01-4.12-.06c-1.07-.05-1.8-.22-2.43-.47-.66-.25-1.22-.6-1.77-1.15-.55-.55-.9-1.11-1.15-1.77-.25-.64-.42-1.36-.47-2.43C2.01 15.06 2 14.72 2 12s.01-3.06.06-4.12c.05-1.07.22-1.8.47-2.43.25-.66.6-1.22 1.15-1.77.55-.55 1.11-.9 1.77-1.15.64-.25 1.36-.42 2.43-.47C8.94 2.01 9.28 2 12 2zm0 1.8c-2.67 0-2.99.01-4.04.06-.98.04-1.5.2-1.86.34-.47.18-.8.4-1.15.75-.35.35-.57.68-.75 1.15-.14.36-.3.88-.34 1.86-.05 1.05-.06 1.37-.06 4.04s.01 2.99.06 4.04c.04.98.2 1.5.34 1.86.18.47.4.8.75 1.15.35.35.68.57 1.15.75.36.14.88.3 1.86.34 1.05.05 1.37.06 4.04.06s2.99-.01 4.04-.06c.98-.04 1.5-.2 1.86-.34.47-.18.8-.4 1.15-.75.35-.35.57-.68.75-1.15.14-.36.3-.88.34-1.86.05-1.05.06-1.37.06-4.04s-.01-2.99-.06-4.04c-.04-.98-.2-1.5-.34-1.86a3.1 3.1 0 0 0-.75-1.15 3.1 3.1 0 0 0-1.15-.75c-.36-.14-.88-.3-1.86-.34-1.05-.05-1.37-.06-4.04-.06zm0 3.07a5.13 5.13 0 1 1 0 10.26 5.13 5.13 0 0 1 0-10.26zm0 1.8a3.33 3.33 0 1 0 0 6.66 3.33 3.33 0 0 0 0-6.66zm5.34-3.2a1.2 1.2 0 1 1 0 2.4 1.2 1.2 0 0 1 0-2.4z"/></svg></a>
+        <a href="https://x.com/rahulvisualzz" aria-label="X" target="_blank" rel="noopener" data-cursor><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+        <a href="https://www.linkedin.com/in/rahulvisualzz" aria-label="LinkedIn" target="_blank" rel="noopener" data-cursor><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.47-.9 1.63-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.07 2.07 0 1 1 0-4.13 2.07 2.07 0 0 1 0 4.13zM7.12 20.45H3.55V9h3.57v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z"/></svg></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ (last section on the page)
+     NOTE: these answers are drafts written to be plausible, not statements of
+     fact I can verify — turnaround, revision count, what is included and how
+     pricing works are all yours to confirm. Read every one before this ships. -->
+<section id="faq" class="faq">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="eyebrow">Before You Ask</span>
+      <h2>FAQs</h2>
+      <p>The questions that come up most before a project starts.</p>
+    </div>
+    <div class="faq-list">
+      <details class="faq-q reveal" name="faq">
+        <summary data-cursor>How long does an edit take?<i aria-hidden="true"></i></summary>
+        <div class="faq-a"><p>A long-form edit is usually with you inside a week of me having the footage; short-form moves faster than that. The real answer depends on runtime, how much footage there is and how much motion design you want — so you get a firm delivery date from me before any money changes hands, not a vague promise.</p></div>
+      </details>
+      <details class="faq-q reveal" name="faq">
+        <summary data-cursor>How many rounds of revisions do I get?<i aria-hidden="true"></i></summary>
+        <div class="faq-a"><p>Two rounds are built into every project, and I would rather you actually used them. Most edits are signed off well inside that. If the brief itself changes direction after the second round, we talk about scope openly — I will not quietly run up a bill.</p></div>
+      </details>
+      <details class="faq-q reveal" name="faq">
+        <summary data-cursor>What do you need from me to start?<i aria-hidden="true"></i></summary>
+        <div class="faq-a"><p>The raw footage, any brand assets you have — logo, fonts, colours — and one or two sentences on what the video is for and who is watching it. Send files however suits you: Drive, Dropbox, Frame.io, a posted drive. One reference video you like tells me more than a long written brief.</p></div>
+      </details>
+      <details class="faq-q reveal" name="faq">
+        <summary data-cursor>What does a project cost?<i aria-hidden="true"></i></summary>
+        <div class="faq-a"><p>Projects are quoted as a fixed price, never by the hour, so you know the number before I start. It follows scope: runtime, how much footage, how much motion design, how many cut-downs you need. Book a call and you will have a figure the same day.</p></div>
+      </details>
+      <details class="faq-q reveal" name="faq">
+        <summary data-cursor>Do you do short-form as well as long-form?<i aria-hidden="true"></i></summary>
+        <div class="faq-a"><p>Both, and they feed each other. YouTube long-form, podcast cut-downs, Reels, Shorts, TikTok. Plenty of clients arrive for one and leave with the other — if you want vertical cut-downs pulled from a long edit, say so up front and I will build the edit to allow for it.</p></div>
+      </details>
+      <details class="faq-q reveal" name="faq">
+        <summary data-cursor>Is sound and colour included, or extra?<i aria-hidden="true"></i></summary>
+        <div class="faq-a"><p>Included. Sound design, the mix and a colour pass are part of the edit, not upsells — an edit that is cut well and sounds thin has not been finished. Subtitles, thumbnails and alternate aspect ratios I will gladly do, just flag them in the brief so they are in the quote.</p></div>
+      </details>
+    </div>
+    <p class="faq-foot reveal">Still unsure about something? <a href="#contact">Book a 30-minute call</a> and ask me directly.</p>
+  </div>
+</section>
+
+</div><!-- /#smooth-wrap -->
+
+<!-- Video viewer. Deliberately OUTSIDE #smooth-wrap: that wrapper is fixed and
+     transformed, which makes it the containing block for anything position:fixed
+     inside it — a lightbox in there would scroll with the page. -->
+<div class="lb" id="lb" aria-hidden="true">
+  <div class="lb-veil"></div>
+  <div class="lb-stage"><div class="lb-box"></div></div>
+  <div class="lb-label"></div>
+  <div class="rail">
+    <button type="button" class="vbtn vclose" aria-label="Close viewer">&#10005;</button>
+    <button type="button" class="vbtn vprev" aria-label="Previous video">&#9650;</button>
+    <button type="button" class="vbtn vnext" aria-label="Next video">&#9660;</button>
+  </div>
+</div>
+
+
+</body>
+</html>
