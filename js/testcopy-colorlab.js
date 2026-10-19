@@ -133,15 +133,35 @@
     return transform(BASE[theme][k], cfg, group);
   }
 
+  let pending=false, lastFx='';
+  /* Coalesce: a slider drag fires ~60 input events a second, and each one used
+     to write 23 custom properties and restyle the whole document. One pass per
+     frame instead.
+     Both the frame and the timeout call run(), and whichever arrives first
+     wins -- rAF alone is not enough, because it does not fire in a background
+     tab and the pending flag would stay set, freezing the lab for good. */
   function apply(){
+    if(pending) return;
+    pending=true;
+    const run=()=>{ if(!pending) return; pending=false; applyNow(); };
+    requestAnimationFrame(run);
+    setTimeout(run,120);
+  }
+  function applyNow(){
     const theme=themeNow();
     for(const [k,group] of TOKENS) ROOT.style.setProperty(k, resolve(theme,k,group));
-    /* the hero shader reads --fx-* only when the class attribute changes, so
-       give its MutationObserver something to notice. setTimeout, not rAF:
-       rAF does not fire in a background tab and the class would stick. */
-    ROOT.classList.add('cl-tick');
-    setTimeout(()=>ROOT.classList.remove('cl-tick'),30);
-    paintSwatches();
+    /* The hero shader reads --fx-* only when the class attribute changes, so
+       give its MutationObserver something to notice -- but ONLY when those
+       three actually moved. Doing it on every tick made the shader re-read and
+       the whole document restyle 60 times a second. setTimeout, not rAF: rAF
+       does not fire in a background tab and the class would stick. */
+    const fx=['--fx-base','--fx-mid','--fx-high'].map(k=>ROOT.style.getPropertyValue(k)).join('|');
+    if(fx!==lastFx){
+      lastFx=fx;
+      ROOT.classList.add('cl-tick');
+      setTimeout(()=>ROOT.classList.remove('cl-tick'),30);
+    }
+    paintSwatches();   /* once a frame now, so this is cheap */
   }
   function reset(){
     state[themeNow()]=blank();
@@ -296,7 +316,10 @@
     const out=`/* paste over the token blocks in css/styles.css */\n:root{\n${block('dark')}\n}\nhtml.light{\n${block('light')}\n}`;
     $('#cl-out').value=out;
     $('#cl-out').select();
-    try{ navigator.clipboard.writeText(out); }catch(e){}
+    /* writeText rejects asynchronously, so a try/catch around it never sees
+       the failure -- it surfaces as an unhandled rejection instead. The
+       textarea above is already selected, so Ctrl+C works regardless. */
+    try{ navigator.clipboard?.writeText(out).catch(()=>{}); }catch(e){}
     console.log(out);
   });
 
