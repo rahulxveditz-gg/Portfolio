@@ -161,8 +161,8 @@ img{max-width:100%;display:block}
 .hero-bars i{flex:1 0 calc(100%/15);max-width:calc(100%/15);height:100%;
   transform:scaleY(var(--s,1));transform-origin:bottom;
   background:linear-gradient(to top,var(--bar),transparent);
-  animation:barBreathe 2.4s var(--d,0s) ease-in-out infinite alternate}
-@keyframes barBreathe{to{transform:scaleY(calc(var(--s,1) * .72))}}
+  animation:barBreathe 2s var(--d,0s) ease-in-out infinite alternate}
+@keyframes barBreathe{to{transform:scaleY(calc(var(--s,1) * .7))}}
 /* light has far less room before the bars start competing with the type */
 html.light .hero-bars{opacity:.5}
 /* No phone override: the field is symmetric now, and hiding the tail would
