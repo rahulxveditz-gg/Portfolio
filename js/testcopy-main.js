@@ -199,14 +199,6 @@ const lightbox=(function(){
   return {show,hide};
 })();
 
-/* ===== custom cursor ===== */
-const dot=document.querySelector('.cur-dot'),ring=document.querySelector('.cur-ring');
-let mx=innerWidth/2,my=innerHeight/2,rx=mx,ry=my;
-addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;dot.style.transform=`translate(${mx}px,${my}px) translate(-50%,-50%)`});
-document.querySelectorAll('a,button,[data-cursor]').forEach(el=>{
-  el.addEventListener('mouseenter',()=>ring.classList.add('hover'));
-  el.addEventListener('mouseleave',()=>ring.classList.remove('hover'));
-});
 
 /* ===== single render loop: scroll easing + cursor + progress ===== */
 let lastT=performance.now();
@@ -230,8 +222,6 @@ let lastT=performance.now();
 
   if(SMOOTH) wrap.style.transform=`translate3d(0,${-cur.toFixed(2)}px,0)`;
 
-  rx+=(mx-rx)*.16; ry+=(my-ry)*.16;
-  ring.style.transform=`translate(${rx}px,${ry}px) translate(-50%,-50%)`;
 
   const h=Math.max(1,document.documentElement.scrollHeight-innerHeight);
   bar.style.width=Math.min(100,cur/h*100)+'%';
@@ -409,7 +399,7 @@ document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
     t.ready.then(()=>{
       html.animate(
         { clipPath:[`circle(0px at ${x}px ${y}px)`, `circle(${reach}px at ${x}px ${y}px)`] },
-        { duration:520, easing:'cubic-bezier(.16,1,.3,1)',
+        { duration:572, easing:'cubic-bezier(.16,1,.3,1)',
           pseudoElement:'::view-transition-new(root)' }
       );
     }).catch(()=>{});   /* a transition can be skipped; the theme is already set */

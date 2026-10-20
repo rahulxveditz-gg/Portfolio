@@ -24,12 +24,12 @@
        revalidated but these are not, and an old script against new markup
        silently broke the whole video viewer once already. Bump it whenever
        anything in css/ or js/ changes. -->
-  <link rel="stylesheet" href="css/styles.css?v=2026-10-20e">
+  <link rel="stylesheet" href="css/styles.css?v=2026-10-20h">
   <!-- defer: both run after the document is parsed, in this order. The
        shader self-gates on readyState and main.js needs the DOM, so neither
        needs to block parsing. The theme script above stays inline on
        purpose — it has to set the class before the first paint. -->
-  <script src="js/main.js?v=2026-10-20e" defer></script>
+  <script src="js/main.js?v=2026-10-20h" defer></script>
 
 </head>
 <body>
@@ -41,9 +41,6 @@
 
 
 
-<!-- cursor -->
-<div class="cur-dot"></div>
-<div class="cur-ring"></div>
 <div class="progress"></div>
 
 <!-- NAV -->
@@ -113,7 +110,6 @@
       <a href="#contact" class="btn-ghost" data-cursor>Get in touch</a>
     </div>
   </div>
-  <div class="scroll-hint" aria-hidden="true"><div class="ln"></div></div>
 </section>
 
 <!-- WORK (FIRST — the showcase) -->

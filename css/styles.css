@@ -60,7 +60,10 @@ html.light{
   --line-strong:rgba(27, 117, 230, .22);
   --violet:#147ffa;
   --violet-bright:#39a2ff;
-  --bar:#bcd9ff;   /* light: a tint, not a glow — it has no darkness to glow against */
+  /* Light bars have to be DARKER than the page to show at all — there is
+     no darkness here for a pale blue to glow against, which is why the
+     first attempt was invisible. */
+  --bar:#5aa0f0;
   --accent-ink:#1364c6;
   --glow:#1769d1;
   --deep:#114587;
@@ -164,15 +167,13 @@ img{max-width:100%;display:block}
   animation:barBreathe 2s var(--d,0s) ease-in-out infinite alternate}
 @keyframes barBreathe{to{transform:scaleY(calc(var(--s,1) * .7))}}
 /* light has far less room before the bars start competing with the type */
-html.light .hero-bars{opacity:.5}
+html.light .hero-bars{opacity:.45}
 /* No phone override: the field is symmetric now, and hiding the tail would
    lop one side off it. Fifteen bars across 375px is 25px each, which is fine
    for something this soft — it reads as texture rather than stripes. */
 
-/* lift the copy above the canvas WITHOUT changing how it's positioned —
-   .scroll-hint is absolute, and forcing it to relative drops it into flow */
+/* lift the copy above the bar field without changing how it's positioned */
 .hero-inner{position:relative;z-index:1}
-.hero .scroll-hint{z-index:1}
 /* Light core only. A heavy core was flattening the whole shader — text is
    protected locally with text-shadow instead, which darkens only behind the
    glyphs rather than dimming the entire background. */
@@ -209,7 +210,7 @@ html.light .hero-bars{opacity:.5}
    fights the blur and leaves a halo ring during the entrance. The dark core
    behind the copy covers this line instead. */
 /* local protection for the smaller copy */
-.hero-inner .eyebrow,.hero-inner .hero-sub,.hero .scroll-hint{
+.hero-inner .eyebrow,.hero-inner .hero-sub{
   text-shadow:0 1px 2px rgba(1,14,24,.95), 0 2px 7px rgba(1,14,24,.8)}
 
 /* the calm drifting-orb background: everything below the hero, and the fallback
@@ -253,11 +254,6 @@ body::after{
 .eyebrow::after{background:linear-gradient(90deg,var(--violet-bright),transparent)}
 
 /* ============ CUSTOM CURSOR ============ */
-.cur-dot,.cur-ring{position:fixed;top:0;left:0;border-radius:50%;pointer-events:none;z-index:9999;mix-blend-mode:screen;transform:translate(-50%,-50%)}
-.cur-dot{width:6px;height:6px;background:var(--glow)}
-.cur-ring{width:22px;height:22px;background:rgba(129,171,255,.32);transition:width .28s,height .28s,background .28s}
-.cur-ring.hover{width:48px;height:48px;background:rgba(77,134,255,.2)}
-@media (hover:none){.cur-dot,.cur-ring{display:none}}
 
 /* scroll progress */
 .progress{position:fixed;top:0;left:0;height:2px;width:0;background:var(--grad);z-index:1000;box-shadow:0 0 12px rgba(129,171,255,.8)}
@@ -354,12 +350,6 @@ header.scrolled{background:var(--header-bg-scrolled);border-bottom-color:var(--h
 .btn-primary:hover::after{width:86%;opacity:1}
 .btn-ghost{display:inline-flex;align-items:center;padding:16px 30px;border-radius:100px;border:1px solid var(--line-strong);font-family:'Sora',sans-serif;font-weight:600;font-size:15px;color:var(--text);background:rgba(77,134,255,.05);transition:.35s}
 .btn-ghost:hover{background:rgba(77,134,255,.14);border-color:var(--violet-bright)}
-/* The word is gone; what is left is the falling line, which says the same
-   thing without taking up a label. */
-.scroll-hint{position:absolute;bottom:30px;left:50%;transform:translateX(-50%);
-  display:flex;justify-content:center;pointer-events:none}
-.scroll-hint .ln{width:1px;height:40px;background:linear-gradient(var(--violet-bright),transparent);animation:drop 1.8s ease-in-out infinite}
-@keyframes drop{0%,100%{transform:scaleY(.3);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}}
 .hero-inner{text-align:center;display:flex;flex-direction:column;align-items:center}
 .hero-inner .eyebrow{margin-bottom:34px;opacity:0;animation:fadeUp 1.4s cubic-bezier(.22,1,.36,1) forwards}
 .hero-inner .hero-sub{max-width:560px;margin:34px auto 0}
@@ -726,14 +716,24 @@ html.light .theme-toggle .toggle-knob{transform:translateX(24px)}
    dirty haze instead, so they are off here. The hero bars are not a wash —
    they are a drawn graphic, and they stay, just quieter. */
 html.light .hero-fx{background:transparent}
-html.light .hero-core{display:none}
+/* Light needs its core back. Once the bars became visible they were sitting
+   under the headline at 2.56:1 — the dark theme has always used this scrim for
+   exactly that, and light has the same problem now that it has the same bars.
+   Radial only, no vertical wash: a wash would dim the bars at the floor, which
+   is the part worth seeing. Peak .78 was solved for, not picked — it is the
+   lowest value that lifts the headline's lightest stop back over 3:1.
+   Smootherstep stops, so alpha and its slope both reach zero at the rim and
+   there is no edge to read as an oval. */
+html.light .hero-core{display:block;background:
+  radial-gradient(92% 80% at 50% 46%,
+    rgba(229,239,255,.78) 0%, rgba(229,239,255,.7733) 10%, rgba(229,239,255,.7348) 20%,
+    rgba(229,239,255,.6528) 30%, rgba(229,239,255,.5324) 40%, rgba(229,239,255,.39) 50%,
+    rgba(229,239,255,.2476) 60%, rgba(229,239,255,.1272) 70%, rgba(229,239,255,.0452) 80%,
+    rgba(229,239,255,.0067) 90%, rgba(229,239,255,0) 100%)}
 html.light .hero-inner h1 b:not(.grad){text-shadow:0 2px 8px rgba(239,245,254,.75)}
-html.light .hero-inner .eyebrow,html.light .hero-inner .hero-sub,html.light .hero .scroll-hint{
+html.light .hero-inner .eyebrow,html.light .hero-inner .hero-sub{
   text-shadow:0 1px 2px rgba(239,245,254,.95), 0 2px 7px rgba(239,245,254,.8)}
 html.light .about{background:none}
-html.light .cur-dot{background:var(--deep)}
-html.light .cur-ring{background:rgba(44,140,251,.18);mix-blend-mode:multiply}
-html.light .cur-ring.hover{background:rgba(44,140,251,.12)}
 html.light .btn-primary{box-shadow:0 14px 40px -12px rgba(44,140,251,.3)}
 html.light .btn-primary:hover{box-shadow:0 0 14px rgba(44,140,251,.25),0 0 32px rgba(44,140,251,.15),0 0 58px rgba(77,134,255,.08),0 12px 32px -14px rgba(44,140,251,.3)}
 html.light .work:hover{box-shadow:0 26px 56px -22px rgba(44,140,251,.25)}
@@ -770,8 +770,9 @@ html.light .play{box-shadow:0 10px 26px rgba(44,140,251,.3)}
   .serv-row{grid-template-columns:1fr;gap:14px;padding:34px 0}
   .serv-row .idx{font-size:15px}
   section{padding:80px 0}
-  /* the scroll hint sits absolutely at bottom:30px and is ~61px tall, so the
-     centred hero content needs at least ~91px of bottom padding to clear it */
+  /* The hero keeps a deep bottom pad. It was sized to clear the scroll hint,
+     which is gone now, but the headline still wants the room — pulling it
+     tight pushes the copy down onto the brightest part of the bars. */
   .hero{padding-top:104px;padding-bottom:130px}
   .sec-head{margin-bottom:46px}
 }
@@ -805,7 +806,6 @@ html.light .play{box-shadow:0 10px 26px rgba(44,140,251,.3)}
 
 /* ---------- short screens (landscape phones) ---------- */
 @media(max-height:640px) and (max-width:900px){
-  .scroll-hint{display:none}                /* no vertical room for it */
   .hero{padding-top:92px;padding-bottom:52px}
 }
 
@@ -825,3 +825,17 @@ html.light .play{box-shadow:0 10px 26px rgba(44,140,251,.3)}
    mid-animation is frozen in that snapshot, which is fine for half a second —
    but the fixed header would otherwise be captured twice. */
 ::view-transition-group(root){animation-duration:.5s}
+
+
+/* ============ POINTER ============
+   A real CSS cursor, not an element chasing the mouse. It cannot lag behind,
+   costs nothing per frame, and keeps working over the video iframes, where a
+   DOM cursor simply vanishes.
+   The white outline is what lets one cursor serve both themes: the blue fill
+   carries it on the light page, the outline separates it from the dark one.
+   Hotspot 9 4 is the arrow's own tip, in the 32px space the browser draws. */
+:root{--cur:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 512 512'%3E%3Cpath d='M140 70 L445 295 L325 295 Q288 295 266 325 L188 432 Z' fill='%233b9dff' stroke='%23ffffff' stroke-width='34' stroke-linejoin='round' stroke-linecap='round'/%3E%3C/svg%3E") 9 4, auto}
+/* listed explicitly because several of these already declare cursor:pointer,
+   and a bare html rule would lose to them */
+html,body,a,button,summary,[data-cursor],
+.burger,.theme-toggle,.lb-veil,.vbtn,.faq-q summary,.work{cursor:var(--cur)}
