@@ -356,10 +356,10 @@ document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
     } else {
       html.classList.remove('light');
     }
-    /* The canvas is hidden in light theme by css/styles.css, and
-       js/hero-shader.js stops drawing while it is. Nothing to set here: an
-       inline opacity would outrank the stylesheet and is what used to leave
-       the dark shader showing through at 18% over the light page. */
+    /* Nothing else to do: the hero is styled entirely from the class.
+       This function used to set an inline opacity on the shader canvas, which
+       outranked the stylesheet and left the dark field showing through at 18%
+       over the light page. The canvas is gone; do not reintroduce the habit. */
   }
   
   /* default to light as the user requested; honour saved preference */

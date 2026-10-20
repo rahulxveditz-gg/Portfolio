@@ -14,6 +14,9 @@
   --line-strong:rgba(125, 193, 255, .28);
   --violet:#6dbaff;
   --violet-bright:#6797ff;
+  /* hero bars. Bright, because each bar fades to nothing on its way up
+     and the core scrim sits over the middle where the words are. */
+  --bar:#0099ff;
   /* accent used as TYPE. --violet-bright is tuned for borders and glows,
      which carry no contrast requirement; as text it fell under the floor. */
   --accent-ink:#73a4ff;
@@ -43,11 +46,6 @@
   /* marker highlight: a light violet block with dark ink on it */
   --mk-bg:#cddeff; --mk-ink:#053852; --mk-edge:#6797ff;
   --aura-scrim:rgba(0, 27, 44, .14);
-  /* the hero shader's three colours — js/hero-shader.js reads these, so the
-     shader is themed here with everything else rather than in the GLSL */
-  --fx-base:#00111d;
-  --fx-mid:#00528c;
-  --fx-high:#2773b3;
   --selection-bg:var(--violet-bright);
   --selection-color:#fff;
   --lb-veil:rgba(0, 7, 12, .9);
@@ -62,6 +60,7 @@ html.light{
   --line-strong:rgba(27, 117, 230, .22);
   --violet:#147ffa;
   --violet-bright:#39a2ff;
+  --bar:#bcd9ff;   /* light: a tint, not a glow — it has no darkness to glow against */
   --accent-ink:#1364c6;
   --glow:#1769d1;
   --deep:#114587;
@@ -140,22 +139,39 @@ img{max-width:100%;display:block}
      field this dark and smooth the eye reads it as a horizontal line (a Mach
      band). Starting the fade with zero slope removes it. */
   -webkit-mask-image:linear-gradient(to bottom,
-    #000 0%, #000 48%, rgba(0,0,0,.991) 53.2%,
-    rgba(0,0,0,.942) 58.4%, rgba(0,0,0,.837) 63.6%, rgba(0,0,0,.683) 68.8%,
-    rgba(0,0,0,.5) 74%, rgba(0,0,0,.317) 79.2%, rgba(0,0,0,.163) 84.4%,
-    rgba(0,0,0,.058) 89.6%, rgba(0,0,0,.009) 94.8%, transparent 100%);
+    #000 0%, #000 82%, rgba(0,0,0,.982) 84%,
+    rgba(0,0,0,.896) 86%, rgba(0,0,0,.744) 88%, rgba(0,0,0,.552) 90%,
+    rgba(0,0,0,.352) 92%, rgba(0,0,0,.184) 94%, rgba(0,0,0,.064) 96%,
+    rgba(0,0,0,.008) 98%, transparent 100%);
   mask-image:linear-gradient(to bottom,
-    #000 0%, #000 48%, rgba(0,0,0,.991) 53.2%,
-    rgba(0,0,0,.942) 58.4%, rgba(0,0,0,.837) 63.6%, rgba(0,0,0,.683) 68.8%,
-    rgba(0,0,0,.5) 74%, rgba(0,0,0,.317) 79.2%, rgba(0,0,0,.163) 84.4%,
-    rgba(0,0,0,.058) 89.6%, rgba(0,0,0,.009) 94.8%, transparent 100%)}
+    #000 0%, #000 82%, rgba(0,0,0,.982) 84%,
+    rgba(0,0,0,.896) 86%, rgba(0,0,0,.744) 88%, rgba(0,0,0,.552) 90%,
+    rgba(0,0,0,.352) 92%, rgba(0,0,0,.184) 94%, rgba(0,0,0,.064) 96%,
+    rgba(0,0,0,.008) 98%, transparent 100%)}
+/* ============ HERO BARS ============
+   A row of bars standing on the floor of the hero, each one a gradient that
+   fades out on the way up, breathing on a stagger. --s is the bar's resting
+   height and --d its delay, both set per bar in the markup.
+   transform and opacity only, so the whole thing stays on the compositor. */
+.hero-bars{position:absolute;inset:0;display:flex;align-items:flex-end;
+  opacity:.62;pointer-events:none}
+.hero-bars i{flex:1 0 calc(100%/15);max-width:calc(100%/15);height:100%;
+  transform:scaleY(var(--s,1));transform-origin:bottom;
+  background:linear-gradient(to top,var(--bar),transparent);
+  animation:barBreathe 2.4s var(--d,0s) ease-in-out infinite alternate}
+@keyframes barBreathe{to{transform:scaleY(calc(var(--s,1) * .72))}}
+/* light has far less room before the bars start competing with the type */
+html.light .hero-bars{opacity:.5}
+@media(max-width:600px){
+  /* 15 bars across a phone is stripes, not a skyline */
+  .hero-bars i:nth-child(n+9){display:none}
+  .hero-bars i{flex-basis:calc(100%/8);max-width:calc(100%/8)}
+}
+
 /* lift the copy above the canvas WITHOUT changing how it's positioned —
    .scroll-hint is absolute, and forcing it to relative drops it into flow */
 .hero-inner{position:relative;z-index:1}
 .hero .scroll-hint{z-index:1}
-#bgfx{position:absolute;inset:0;width:100%;height:100%;display:block;
-  opacity:0;transition:opacity 1.1s ease}
-#bgfx.on{opacity:1}
 /* Light core only. A heavy core was flattening the whole shader — text is
    protected locally with text-shadow instead, which darkens only behind the
    glyphs rather than dimming the entire background. */
@@ -700,18 +716,11 @@ html.light .theme-toggle .icon-moon{opacity:.35}
 html.light .theme-toggle .toggle-knob{transform:translateX(24px)}
 .theme-toggle:hover{border-color:var(--violet-bright);box-shadow:0 0 12px rgba(77,134,255,.2)}
 /* light theme specific overrides */
-/* No shader in light theme. Its palette is hard-coded near-black in the
-   fragment shader, so it read as a dark band across a white page. What is
-   left is .hero-fx's own tint with the white .hero-core pooled over it —
-   still a soft field, just a light one. js/hero-shader.js stops drawing
-   while this is hidden so nothing renders off-screen at 60fps. */
-/* ===== Light theme carries no background gradient =====
-   The shader, the drifting orbs, the hero wash and the About fade are all
-   devices for a dark page, where a soft glow reads as depth. Over near-white
-   they read as a dirty violet haze instead. Light is flat on purpose: the
-   colour comes from the type, the marker and the cards.
-   js/hero-shader.js also stops drawing while the canvas is hidden. */
-html.light #bgfx.on{opacity:0}
+/* ===== Light theme carries no background WASH =====
+   The drifting orbs, the hero tint and the About fade are devices for a dark
+   page, where a soft glow reads as depth. Over near-white they read as a
+   dirty haze instead, so they are off here. The hero bars are not a wash —
+   they are a drawn graphic, and they stay, just quieter. */
 html.light .hero-fx{background:transparent}
 html.light .hero-core{display:none}
 html.light .hero-inner h1 b:not(.grad){text-shadow:0 2px 8px rgba(239,245,254,.75)}
