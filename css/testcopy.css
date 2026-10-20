@@ -6,8 +6,10 @@
 :root{
   /* The purple the whole theme is built on, dark end. Light is the same hue
      lifted; the two are one palette, not two. */
-  --bg:#001b2c;
-  --bg-2:#02273c;
+  /* Black, not a near-black navy. The bars supply the colour; the page
+     behind them is the absence of it. */
+  --bg:#000000;
+  --bg-2:#050a0f;
   --surface:#053852;
   --surface-2:#094666;
   --line:rgba(125, 193, 255, .14);
@@ -45,7 +47,7 @@
   --grain-opacity:.085;
   /* marker highlight: a light violet block with dark ink on it */
   --mk-bg:#cddeff; --mk-ink:#053852; --mk-edge:#6797ff;
-  --aura-scrim:rgba(0, 27, 44, .14);
+  --aura-scrim:rgba(0, 0, 0, .14);
   --selection-bg:var(--violet-bright);
   --selection-color:#fff;
   --lb-veil:rgba(0, 7, 12, .9);
@@ -68,7 +70,7 @@ html.light{
   --glow:#1769d1;
   --deep:#114587;
   --text:#0f1b2a;
-  --muted:#4c6176;
+  --muted:#425568;
   --muted-2:#7c94a9;
   /* First stop darkened from #86ccff. With the shader behind it the headline
      sat on near-black; on the light hero that stop measured 2.15:1, under the
@@ -77,7 +79,7 @@ html.light{
   /* First stop darkened from #39a2ff, which measured 2.33:1 on this page —
      under the 3:1 floor for large text. #1f84e8 is 3.28:1 and still reads
      as the light end of the sweep. */
-  --grad:linear-gradient(135deg,#1f84e8 0%,#147ffa 45%,#1356aa 100%);
+  --grad:linear-gradient(135deg,#1673cd 0%,#1468d4 45%,#114a94 100%);
   /* First stop darkened from #147ffa, which put the white button label at
      3.86:1 — under 4.5, and 15px bold does not qualify as large text.
      #1570dd is 4.78:1 and still the bright end of the sweep. */
@@ -139,7 +141,7 @@ img{max-width:100%;display:block}
    canvas fading in from opacity 0 lets the .aura orbs show through — and those
    are 80vw circles, so their edges read as big soft rings during the entrance. */
 .hero-fx{position:absolute;inset:0;z-index:0;overflow:hidden;pointer-events:none;
-  background:#000e19;
+  background:#000000;
   /* Smootherstep ramp, not a flat-then-drop. The old mask held #000 to 52%
      then fell away linearly; that corner is a slope discontinuity, and on a
      field this dark and smooth the eye reads it as a horizontal line (a Mach
@@ -177,41 +179,22 @@ html.light .hero-bars{opacity:.45}
 /* Light core only. A heavy core was flattening the whole shader — text is
    protected locally with text-shadow instead, which darkens only behind the
    glyphs rather than dimming the entire background. */
-.hero-core{position:absolute;inset:0;pointer-events:none;
-  background:
-    /* ONE ellipse, not two. The old core stacked a 46%x42% pool on a 72%x58%
-       one; each had its own falloff edge, and against this shader — far darker
-       and far smoother than the silk it replaced — those edges read as dark
-       ovals instead of vanishing into the texture.
-       Stops follow a smootherstep falloff, so alpha AND its slope both reach
-       zero at the rim: there is no boundary left to perceive. Peak is .70 not
-       .92 — white copy measures 5.99:1 on the brightest pixel of the new field
-       with no core at all, so this only has to take the odd highlight off. */
-    radial-gradient(92% 80% at 50% 46%,
-      rgba(1,14,24,.7) 0%, rgba(1,14,24,.694) 10%, rgba(1,14,24,.6595) 20%,
-      rgba(1,14,24,.5858) 30%, rgba(1,14,24,.4778) 40%, rgba(1,14,24,.35) 50%,
-      rgba(1,14,24,.2222) 60%, rgba(1,14,24,.1142) 70%, rgba(1,14,24,.0405) 80%,
-      rgba(1,14,24,.006) 90%, rgba(1,14,24,0) 100%),
-    linear-gradient(180deg, rgba(0,27,44,.40), transparent 22%, transparent 86%, rgba(0,27,44,.34))}
-@media(max-width:900px){
-  .hero-core{background:
-    radial-gradient(118% 76% at 50% 46%,
-      rgba(1,14,24,.72) 0%, rgba(1,14,24,.7138) 10%, rgba(1,14,24,.6783) 20%,
-      rgba(1,14,24,.6026) 30%, rgba(1,14,24,.4914) 40%, rgba(1,14,24,.36) 50%,
-      rgba(1,14,24,.2286) 60%, rgba(1,14,24,.1174) 70%, rgba(1,14,24,.0417) 80%,
-      rgba(1,14,24,.0062) 90%, rgba(1,14,24,0) 100%),
-    linear-gradient(180deg, rgba(0,27,44,.40), transparent 24%, transparent 84%, rgba(0,27,44,.36))}
-}
+/* No core in dark. It existed to knock back a WebGL field that filled the
+   whole hero and was brightest behind the words. The bars are brightest at the
+   FLOOR and fade as they rise, so the band the type sits in is nearly black
+   without help. Light still has one: its bars darken the page rather than
+   lighting it, so the problem there is the opposite way round. */
+.hero-core{display:none}
 /* Tight shadows only. Wide halos (30–60px) read as soft dark ovals against the
    silk — that was the ring artifact, not a rendering bug. */
-.hero-inner h1 b:not(.grad){text-shadow:0 2px 8px rgba(1,14,24,.75)}
+.hero-inner h1 b:not(.grad){text-shadow:0 2px 8px rgba(0,0,0,.75)}
 /* NOTE: no filter on .grad. It's the same <b> that carries the heroIn entrance
    animation, which animates `filter` — one property, so a drop-shadow here
    fights the blur and leaves a halo ring during the entrance. The dark core
    behind the copy covers this line instead. */
 /* local protection for the smaller copy */
 .hero-inner .eyebrow,.hero-inner .hero-sub{
-  text-shadow:0 1px 2px rgba(1,14,24,.95), 0 2px 7px rgba(1,14,24,.8)}
+  text-shadow:0 1px 2px rgba(0,0,0,.95), 0 2px 7px rgba(0,0,0,.8)}
 
 /* the calm drifting-orb background: everything below the hero, and the fallback
    if WebGL is unavailable */
@@ -494,7 +477,7 @@ section{padding:120px 0;position:relative}
 .lb-cap{position:absolute;left:0;right:0;bottom:0;padding:26px 28px;
   font-family:'Sora',system-ui,sans-serif;font-weight:700;
   font-size:clamp(17px,2vw,24px);color:var(--text);
-  background:linear-gradient(to top,rgba(0,27,44,.92),rgba(0,27,44,.5) 55%,transparent)}
+  background:linear-gradient(to top,rgba(0,0,0,.92),rgba(0,0,0,.5) 55%,transparent)}
 html.viewing #header{opacity:.25;transition:opacity .35s}
 
 /* `right` / `left` are set from the player's real scaled width, so both track
@@ -716,20 +699,10 @@ html.light .theme-toggle .toggle-knob{transform:translateX(24px)}
    dirty haze instead, so they are off here. The hero bars are not a wash —
    they are a drawn graphic, and they stay, just quieter. */
 html.light .hero-fx{background:transparent}
-/* Light needs its core back. Once the bars became visible they were sitting
-   under the headline at 2.56:1 — the dark theme has always used this scrim for
-   exactly that, and light has the same problem now that it has the same bars.
-   Radial only, no vertical wash: a wash would dim the bars at the floor, which
-   is the part worth seeing. Peak .78 was solved for, not picked — it is the
-   lowest value that lifts the headline's lightest stop back over 3:1.
-   Smootherstep stops, so alpha and its slope both reach zero at the rim and
-   there is no edge to read as an oval. */
-html.light .hero-core{display:block;background:
-  radial-gradient(92% 80% at 50% 46%,
-    rgba(229,239,255,.78) 0%, rgba(229,239,255,.7733) 10%, rgba(229,239,255,.7348) 20%,
-    rgba(229,239,255,.6528) 30%, rgba(229,239,255,.5324) 40%, rgba(229,239,255,.39) 50%,
-    rgba(229,239,255,.2476) 60%, rgba(229,239,255,.1272) 70%, rgba(229,239,255,.0452) 80%,
-    rgba(229,239,255,.0067) 90%, rgba(229,239,255,0) 100%)}
+/* No core in either theme. It is a wash over the bars, and the bars are
+   the point. Legibility is handled in the type instead — see the light
+   --grad note. */
+html.light .hero-core{display:none}
 html.light .hero-inner h1 b:not(.grad){text-shadow:0 2px 8px rgba(239,245,254,.75)}
 html.light .hero-inner .eyebrow,html.light .hero-inner .hero-sub{
   text-shadow:0 1px 2px rgba(239,245,254,.95), 0 2px 7px rgba(239,245,254,.8)}
@@ -834,7 +807,7 @@ html.light .play{box-shadow:0 10px 26px rgba(44,140,251,.3)}
    The white outline is what lets one cursor serve both themes: the blue fill
    carries it on the light page, the outline separates it from the dark one.
    Hotspot 9 4 is the arrow's own tip, in the 32px space the browser draws. */
-:root{--cur:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 512 512'%3E%3Cpath d='M140 70 L445 295 L325 295 Q288 295 266 325 L188 432 Z' fill='%233b9dff' stroke='%23ffffff' stroke-width='34' stroke-linejoin='round' stroke-linecap='round'/%3E%3C/svg%3E") 9 4, auto}
+:root{--cur:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 512 512'%3E%3Cpath d='M160 104 L418 292 L330 292 Q298 292 278 318 L202 406 Z' fill='none' stroke='%23ffffff' stroke-width='104' stroke-linejoin='round' stroke-linecap='round'/%3E%3Cpath d='M160 104 L418 292 L330 292 Q298 292 278 318 L202 406 Z' fill='%233b9dff' stroke='%233b9dff' stroke-width='72' stroke-linejoin='round' stroke-linecap='round'/%3E%3C/svg%3E") 10 6, auto}
 /* listed explicitly because several of these already declare cursor:pointer,
    and a bare html rule would lose to them */
 html,body,a,button,summary,[data-cursor],

@@ -421,14 +421,25 @@ document.getElementById('burger').addEventListener('click',()=>goTo('#contact'))
 
   /* Calendly bakes its colours into the embed URL, so each theme needs its
      own URL rather than a restyle. */
+  /* Read the colours out of the stylesheet rather than repeating them here.
+     They were hard-coded, so the whole embed stayed violet after the site went
+     blue — the one surface a recolour cannot reach, because Calendly bakes its
+     palette into the URL instead of taking CSS. */
+  function hexOf(name, fallback){
+    const v=getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    const m=/^#([0-9a-f]{6})$/i.exec(v);
+    return m ? m[1] : fallback;
+  }
   function url(){
     const light=document.documentElement.classList.contains('light');
     const p=new URLSearchParams({
       hide_landing_page_details:'1',
       hide_gdpr_banner:'1',
-      background_color: light?'ffffff':'140d26',
-      text_color:       light?'1a1033':'f4f1fb',
-      primary_color:    light?'6d28d9':'a855f7'
+      /* --bg-2 is what .cal-embed is painted with, so the iframe and the box
+         around it share a colour and there is no seam at the edge */
+      background_color: hexOf('--bg-2',  light?'deeafa':'050a0f'),
+      text_color:       hexOf('--text',  light?'0f1b2a':'eef7fe'),
+      primary_color:    hexOf('--violet',light?'147ffa':'6dbaff')
     });
     return base+'?'+p.toString();
   }
@@ -462,6 +473,17 @@ document.getElementById('burger').addEventListener('click',()=>goTo('#contact'))
      once the page has gone quiet rather than waiting for the scroll to reach
      it — by the time you get there the calendar is already up. The iframe
      still only mounts near the section, two screens out. */
+  /* The palette is in the URL, so an embed built under one theme keeps that
+     theme's colours for good. Rebuild it when the theme actually changes —
+     and only then, since each rebuild is a fresh iframe over the network. */
+  let lastTheme=document.documentElement.classList.contains('light');
+  new MutationObserver(()=>{
+    const now=document.documentElement.classList.contains('light');
+    if(now===lastTheme) return;
+    lastTheme=now;
+    if(host.classList.contains('ready')){ host.classList.remove('live'); mount(); }
+  }).observe(document.documentElement,{attributes:true,attributeFilter:['class']});
+
   const idle=window.requestIdleCallback||(f=>setTimeout(f,1200));
   if(document.readyState==='complete') idle(load);
   else addEventListener('load',()=>idle(load));
