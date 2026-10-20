@@ -157,7 +157,7 @@ img{max-width:100%;display:block}
    height and --d its delay, both set per bar in the markup.
    transform and opacity only, so the whole thing stays on the compositor. */
 .hero-bars{position:absolute;inset:0;display:flex;align-items:flex-end;
-  opacity:.62;pointer-events:none}
+  opacity:.88;pointer-events:none}
 .hero-bars i{flex:1 0 calc(100%/15);max-width:calc(100%/15);height:100%;
   transform:scaleY(var(--s,1));transform-origin:bottom;
   background:linear-gradient(to top,var(--bar),transparent);
@@ -354,7 +354,10 @@ header.scrolled{background:var(--header-bg-scrolled);border-bottom-color:var(--h
 .btn-primary:hover::after{width:86%;opacity:1}
 .btn-ghost{display:inline-flex;align-items:center;padding:16px 30px;border-radius:100px;border:1px solid var(--line-strong);font-family:'Sora',sans-serif;font-weight:600;font-size:15px;color:var(--text);background:rgba(77,134,255,.05);transition:.35s}
 .btn-ghost:hover{background:rgba(77,134,255,.14);border-color:var(--violet-bright)}
-.scroll-hint{position:absolute;bottom:30px;left:50%;transform:translateX(-50%);font-size:11px;letter-spacing:.3em;color:var(--muted-2);text-transform:uppercase;display:flex;flex-direction:column;align-items:center;gap:10px;opacity:0;animation:fade 1.4s ease 1.5s forwards}
+/* The word is gone; what is left is the falling line, which says the same
+   thing without taking up a label. */
+.scroll-hint{position:absolute;bottom:30px;left:50%;transform:translateX(-50%);
+  display:flex;justify-content:center;pointer-events:none}
 .scroll-hint .ln{width:1px;height:40px;background:linear-gradient(var(--violet-bright),transparent);animation:drop 1.8s ease-in-out infinite}
 @keyframes drop{0%,100%{transform:scaleY(.3);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}}
 .hero-inner{text-align:center;display:flex;flex-direction:column;align-items:center}
@@ -805,3 +808,20 @@ html.light .play{box-shadow:0 10px 26px rgba(44,140,251,.3)}
   .scroll-hint{display:none}                /* no vertical room for it */
   .hero{padding-top:92px;padding-bottom:52px}
 }
+
+
+/* ============ THEME WIPE ============
+   The new theme is clipped in as a growing circle centred on the toggle.
+   js/main.js drives the circle; all this does is get the browser's own
+   cross-fade out of the way and set the stacking so the new state is revealed
+   OVER the old one rather than blended with it. */
+@media(prefers-reduced-motion:no-preference){
+  ::view-transition-old(root),
+  ::view-transition-new(root){animation:none;mix-blend-mode:normal}
+  ::view-transition-old(root){z-index:1}
+  ::view-transition-new(root){z-index:2}
+}
+/* A view transition snapshots the page and paints it over the top. Anything
+   mid-animation is frozen in that snapshot, which is fine for half a second —
+   but the fixed header would otherwise be captured twice. */
+::view-transition-group(root){animation-duration:.5s}

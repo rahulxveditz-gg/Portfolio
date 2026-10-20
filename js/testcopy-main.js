@@ -367,11 +367,52 @@ document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
   const initial = saved || 'light';
   applyTheme(initial);
   
-  btn.addEventListener('click', ()=>{
-    const isLight = html.classList.contains('light');
-    const next = isLight ? 'dark' : 'light';
+  /* Radial wipe. The new theme is clipped in as a circle growing from the
+     toggle itself, so the change reads as coming from the thing you pressed.
+
+     startViewTransition snapshots the page, runs the callback, snapshots
+     again, and gives us both to animate. We animate only the NEW snapshot's
+     clip-path; the old one sits underneath untouched, so the circle has a
+     hard edge to carry instead of a cross-fade smudge.
+
+     Everything degrades: no API, or reduced motion, and the theme just
+     switches the way it always did. */
+  function swap(next){
     applyTheme(next);
-    localStorage.setItem(STORAGE_KEY, next);
+    try{ localStorage.setItem(STORAGE_KEY, next); }catch(e){}
+  }
+
+  btn.addEventListener('click', ()=>{
+    const next = html.classList.contains('light') ? 'dark' : 'light';
+    const calm = matchMedia('(prefers-reduced-motion:reduce)').matches;
+
+    if(!document.startViewTransition || calm){ swap(next); return; }
+
+    /* centre of the toggle, and the distance from it to the furthest corner —
+       the circle has to clear the whole viewport, and the toggle sits off to
+       one side, so the far corner is what sets the radius */
+    const r = btn.getBoundingClientRect();
+    const x = r.left + r.width/2, y = r.top + r.height/2;
+    const reach = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
+
+    const t = document.startViewTransition(()=>swap(next));
+
+    /* A view transition only runs its callback when the browser next renders.
+       A backgrounded or throttled tab never gives it one, and then the toggle
+       does nothing at all — press it, page unchanged. Belt and braces: if the
+       theme has not flipped shortly after, do it directly. swap() is
+       idempotent, so it does not matter if the transition lands later too. */
+    setTimeout(()=>{
+      if(html.classList.contains('light') !== (next === 'light')) swap(next);
+    }, 400);
+
+    t.ready.then(()=>{
+      html.animate(
+        { clipPath:[`circle(0px at ${x}px ${y}px)`, `circle(${reach}px at ${x}px ${y}px)`] },
+        { duration:520, easing:'cubic-bezier(.16,1,.3,1)',
+          pseudoElement:'::view-transition-new(root)' }
+      );
+    }).catch(()=>{});   /* a transition can be skipped; the theme is already set */
   });
 })();
 
