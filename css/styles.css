@@ -75,7 +75,10 @@ html.light{
      under the 3:1 floor for large text. #1f84e8 is 3.28:1 and still reads
      as the light end of the sweep. */
   --grad:linear-gradient(135deg,#1f84e8 0%,#147ffa 45%,#1356aa 100%);
-  --grad-btn:linear-gradient(135deg,#147ffa 0%,#1769d1 45%,#114587 100%);
+  /* First stop darkened from #147ffa, which put the white button label at
+     3.86:1 — under 4.5, and 15px bold does not qualify as large text.
+     #1570dd is 4.78:1 and still the bright end of the sweep. */
+  --grad-btn:linear-gradient(135deg,#1570dd 0%,#1769d1 45%,#114587 100%);
   --header-bg:rgba(239,245,254,.72);
   --header-bg-scrolled:rgba(239,245,254,.92);
   --header-border:rgba(27,117,230,.08);
@@ -162,11 +165,9 @@ img{max-width:100%;display:block}
 @keyframes barBreathe{to{transform:scaleY(calc(var(--s,1) * .72))}}
 /* light has far less room before the bars start competing with the type */
 html.light .hero-bars{opacity:.5}
-@media(max-width:600px){
-  /* 15 bars across a phone is stripes, not a skyline */
-  .hero-bars i:nth-child(n+9){display:none}
-  .hero-bars i{flex-basis:calc(100%/8);max-width:calc(100%/8)}
-}
+/* No phone override: the field is symmetric now, and hiding the tail would
+   lop one side off it. Fifteen bars across 375px is 25px each, which is fine
+   for something this soft — it reads as texture rather than stripes. */
 
 /* lift the copy above the canvas WITHOUT changing how it's positioned —
    .scroll-hint is absolute, and forcing it to relative drops it into flow */
