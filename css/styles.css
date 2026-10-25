@@ -65,12 +65,12 @@ html.light{
   /* Light bars have to be DARKER than the page to show at all — there is
      no darkness here for a pale blue to glow against, which is why the
      first attempt was invisible. */
-  --bar:#5aa0f0;
+  --bar:#4a93ec;
   --accent-ink:#1364c6;
   --glow:#1769d1;
   --deep:#114587;
   --text:#0f1b2a;
-  --muted:#425568;
+  --muted:#3b4c5d;
   --muted-2:#7c94a9;
   /* First stop darkened from #86ccff. With the shader behind it the headline
      sat on near-black; on the light hero that stop measured 2.15:1, under the
@@ -79,7 +79,7 @@ html.light{
   /* First stop darkened from #39a2ff, which measured 2.33:1 on this page —
      under the 3:1 floor for large text. #1f84e8 is 3.28:1 and still reads
      as the light end of the sweep. */
-  --grad:linear-gradient(135deg,#1673cd 0%,#1468d4 45%,#114a94 100%);
+  --grad:linear-gradient(135deg,#125eb3 0%,#0f56a8 45%,#0b3d78 100%);
   /* First stop darkened from #147ffa, which put the white button label at
      3.86:1 — under 4.5, and 15px bold does not qualify as large text.
      #1570dd is 4.78:1 and still the bright end of the sweep. */
@@ -169,7 +169,7 @@ img{max-width:100%;display:block}
   animation:barBreathe 2s var(--d,0s) ease-in-out infinite alternate}
 @keyframes barBreathe{to{transform:scaleY(calc(var(--s,1) * .7))}}
 /* light has far less room before the bars start competing with the type */
-html.light .hero-bars{opacity:.45}
+html.light .hero-bars{opacity:.78}
 /* No phone override: the field is symmetric now, and hiding the tail would
    lop one side off it. Fifteen bars across 375px is 25px each, which is fine
    for something this soft — it reads as texture rather than stripes. */
